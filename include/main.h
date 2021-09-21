@@ -38,6 +38,8 @@
 #include "PID.hpp"
 #include "Timer.hpp"
 #include "Vector2D.hpp"
+#include "test_drive.h"
+#include "math.h"
 
 /**
  * If you find doing pros::Motor() to be tedious and you'd prefer just to do
@@ -74,5 +76,21 @@ void opcontrol(void);
  */
 //#include <iostream>
 #endif
+
+#define CONTROLLER_JOYSTICK_THRESHOLD 5
+
+// extern controllers
+extern Controller master;
+
+// extern drive mtoors
+extern Motor driveFL;
+extern Motor driveFR;
+extern Motor driveBL;
+extern Motor driveBR;
+extern Motor driveSF;
+extern Motor driveSB;
+
+// extern for sensors
+extern Imu imu;
 
 #endif  // _PROS_MAIN_H_

@@ -1,5 +1,19 @@
 #include "main.h"
 
+// controller
+Controller master(E_CONTROLLER_MASTER);
+
+// drive motors
+Motor driveFL(11);
+Motor driveFR(12);
+Motor driveBL(13);
+Motor driveBR(14);
+Motor driveSF(15);
+Motor driveSB(16);
+
+// sensors
+Imu imu(10);
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -57,6 +71,6 @@ void autonomous() {}
 void opcontrol() {
 
 	while (true) {
-
+		relativeDriveControl();
 	}
 }
