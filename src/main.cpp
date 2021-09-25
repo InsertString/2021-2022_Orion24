@@ -81,13 +81,14 @@ void opcontrol() {
 	Vector2D test4(5, 12);
 
 	double theta = test3.getAngleBetween(test4);
-	printf("%f ", theta);
+	
 
 	while (true) {
 		if (imu.is_calibrating() == false) {
 			//relativeDriveControl();
 		}
-
+		printf("%f ", dot);
+		printf("%f \n", theta);
 		//power_drive(master.get_analog(ANALOG_LEFT_X), master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_X));
 		//driveBL = master.get_analog(ANALOG_LEFT_Y);
 		//printf("test\n");
