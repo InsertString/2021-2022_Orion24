@@ -1,4 +1,5 @@
 #include "main.h"
+#include "test_drive.h"
 
 void power_drive(double x, double y, double turn) {
     driveFL =  y + turn;
@@ -16,12 +17,13 @@ double delta_theta;
 double turn_power;
 
 void relativeDriveControl() {
-    // calculate the direction the controller wants the robot to go in 
+    // calculate the direction the controller wants the robot to go in
     unit_controller_target.x = master.get_analog(ANALOG_LEFT_X) / 127.0f;
     unit_controller_target.y = master.get_analog(ANALOG_LEFT_Y) / 127.0f;
 
     // display unit_contorller_targets on screen
     lcd::print(0, "uct.x[%0.2f], uct.y[%0.2f]",unit_controller_target.x, unit_controller_target.y);
+    printf("uct.x[%0.2f], uct.y[%0.2f], delta_theta[%0.2f], r.x[%4.0f], r.y[%4.0f], turn[%4.0f]\n",unit_controller_target.x, unit_controller_target.y, delta_theta, resultant.x, resultant.y, turn_power);
 
     // difference in angle is target heading - current heading
     delta_theta = unit_controller_target.getAngle() - imu.get_heading();

@@ -21,7 +21,8 @@ Imu imu(10);
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	pros::lcd::initialize();
+	//lcd::initialize();
+	//delay(1000);
 }
 
 /**
@@ -71,6 +72,9 @@ void autonomous() {}
 void opcontrol() {
 
 	while (true) {
-		relativeDriveControl();
+		//relativeDriveControl();
+		driveBL = master.get_analog(ANALOG_LEFT_Y);
+		printf("test\n");
+		delay(20);
 	}
 }
