@@ -21,7 +21,7 @@ Imu imu(10);
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	//lcd::initialize();
+	lcd::initialize();
 	//delay(1000);
 }
 
@@ -72,9 +72,13 @@ void autonomous() {}
 void opcontrol() {
 
 	while (true) {
-		//relativeDriveControl();
-		driveBL = master.get_analog(ANALOG_LEFT_Y);
-		printf("test\n");
+		if (imu.is_calibrating() == false) {
+			//relativeDriveControl();
+		}
+
+		power_drive(master.get_analog(ANALOG_LEFT_X), master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_X));
+		//driveBL = master.get_analog(ANALOG_LEFT_Y);
+		//printf("test\n");
 		delay(20);
 	}
 }
