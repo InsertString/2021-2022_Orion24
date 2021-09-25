@@ -8,10 +8,25 @@ double Vector2D::getLength() {
 }
 
 double Vector2D::getAngle() {
-  if (x != 0) return tan(y / x);
-  else if (y > 0) return (3.14159 / 2);
-  else if (y < 0) return (3 * 3.14159 / 2);
-  else return 0;
+  double l = this->getLength();
+
+  double theta = 0;
+
+  if (l != 0) {
+    theta = asin(x / l);
+
+    if (y < 0 && x > 0) {
+      theta = 3.14159 - theta;
+    }
+    else {
+      theta = -3.14159 - theta;
+    }
+
+    return theta;
+  }
+  else {
+    return 0;
+  }
 }
 
 Vector2D Vector2D::operator+ (const Vector2D& param) {

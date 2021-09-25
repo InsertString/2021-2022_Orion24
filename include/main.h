@@ -40,6 +40,7 @@
 #include "Vector2D.hpp"
 #include "test_drive.h"
 #include "math.h"
+#include "iomanip"
 
 /**
  * If you find doing pros::Motor() to be tedious and you'd prefer just to do
