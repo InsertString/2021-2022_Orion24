@@ -71,12 +71,24 @@ void autonomous() {}
  */
 void opcontrol() {
 
+	Vector2D test1(3, -4);
+	Vector2D test2(-2, 6);
+
+	double dot = test1 * test2;
+	printf("%f ", dot);
+
+	Vector2D test3(-6, 8);
+	Vector2D test4(5, 12);
+
+	double theta = test3.getAngleBetween(test4);
+	printf("%f ", theta);
+
 	while (true) {
 		if (imu.is_calibrating() == false) {
 			//relativeDriveControl();
 		}
 
-		power_drive(master.get_analog(ANALOG_LEFT_X), master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_X));
+		//power_drive(master.get_analog(ANALOG_LEFT_X), master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_X));
 		//driveBL = master.get_analog(ANALOG_LEFT_Y);
 		//printf("test\n");
 		delay(20);
