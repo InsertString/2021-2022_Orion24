@@ -27,3 +27,19 @@ Vector2D Vector2D::operator* (const double& param) {
   temp.y = y * param;
   return temp;
 }
+
+double Vector2D::operator* (const Vector2D& param) {
+  double temp = 0;
+  temp = (x * param.x) + (y * param.y);
+  return temp;
+}
+
+double Vector2D::getAngleBetween(Vector2D b) {
+  double dot_product = *(this) * b;
+  double theta = 0;
+
+  theta = dot_product / (this->getLength() * b.getLength());
+  theta = acos(theta);
+
+  return theta;
+}
