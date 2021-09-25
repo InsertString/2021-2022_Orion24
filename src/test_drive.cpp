@@ -20,8 +20,14 @@ void relativeDriveControl() {
     unit_controller_target.x = master.get_analog(ANALOG_LEFT_X) / 127.0f;
     unit_controller_target.y = master.get_analog(ANALOG_LEFT_Y) / 127.0f;
 
+    // display unit_contorller_targets on screen
+    lcd::print(0, "uct.x[%0.2f], uct.y[%0.2f]",unit_controller_target.x, unit_controller_target.y);
+
     // difference in angle is target heading - current heading
     delta_theta = unit_controller_target.getAngle() - imu.get_heading();
+
+    // display delta_theta
+    lcd::print(1, "delta_theta[%0.2f]", delta_theta);
 
     // the unit vector for the componets of the target from the robots perspective
     unit_resultant.x = sin(delta_theta);
@@ -32,6 +38,9 @@ void relativeDriveControl() {
 
     // turning will be independant to direction and serves to steer robot direction
     turn_power = master.get_analog(ANALOG_RIGHT_X);
+
+    // display resultant
+    lcd::print(2, "r.x[%4.0f], r.y[%4.0f], turn[%4.0f]", resultant.x, resultant.y, turn_power);
 
     // apply motor powers
     power_drive(resultant.x, resultant.y, turn_power);
