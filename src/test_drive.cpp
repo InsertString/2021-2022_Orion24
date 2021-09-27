@@ -3,11 +3,11 @@
 
 void power_drive(double x, double y, double turn) {
     driveFL =  y + turn;
-    driveBL =  y + turn;
+    driveBL =  -y + turn;
     driveFR = -y + turn;
-    driveBR = -y + turn;
-    driveSF =  x + (turn * STRAFE_TURN_CONST);
-    driveSB = -x + (turn * STRAFE_TURN_CONST);
+    driveBR = y + turn;
+    driveSF = -x - (turn * STRAFE_TURN_CONST);
+    driveSB = x - (turn * STRAFE_TURN_CONST);
 }
 
 Vector2D controller_target;
@@ -37,4 +37,6 @@ void relativeDriveControl() {
     std::cout << "] ry[" << std::setw(5) << std::setprecision(3) << resultant.y << "] dT[";
     std::cout << std::setw(10) << std::setprecision(3) << delta_theta << "] imuH[";
     std::cout << std::setw(10) << std::setprecision(3) << imu.get_heading() << "]" << std::flush;
+
+    power_drive(resultant.x, resultant.y, master.get_analog(ANALOG_RIGHT_X));
 }

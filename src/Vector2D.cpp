@@ -13,13 +13,32 @@ double Vector2D::getAngle() {
   double theta = 0;
 
   if (l != 0) {
-    theta = asin(x / l);
-
-    if (y < 0 && x > 0) {
-      theta = 3.14159 - theta;
+    if (y > 0 && x > 0 ) {
+      theta = asin(x / l);
+    }
+    else if (y < 0 && x > 0) {
+      theta = 3.14159 - asin(x / l);
+    }
+    else if (y > 0 && x < 0) {
+      theta = asin(x / l);
+    }
+    else if (y < 0 && x < 0) {
+      theta = -3.14159 - asin(x / l);
+    }
+    else if (y == 0 && x > 0) {
+      theta = 3.14159 / 2;
+    }
+    else if (y == 0 && x < 0) {
+      theta = -3.14159 / 2;
+    }
+    else if (y < 0 && x == 0) {
+      theta = 3.14159;
+    }
+    else if (y > 0 && x == 0) {
+      theta = 0;
     }
     else {
-      theta = -3.14159 - theta;
+      theta = 0;
     }
 
     return theta;
