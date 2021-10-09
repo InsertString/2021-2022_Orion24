@@ -2,12 +2,14 @@
 #include "test_drive.h"
 
 void power_drive(double x, double y, double turn) {
-    driveFL =  y + turn;
-    driveBL =  -y + turn;
-    driveFR = -y + turn;
-    driveBR = y + turn;
-    driveSF = -x - (turn * STRAFE_TURN_CONST);
-    driveSB = x - (turn * STRAFE_TURN_CONST);
+    driveLFL = -x - y - turn;
+    driveLFR = -x - y - turn;
+    driveLBL = x - y - turn;
+    driveLBR = x - y - turn;
+    driveRFL = -x + y - turn;
+    driveRFR = -x + y - turn;
+    driveRBL = x + y - turn;
+    driveRBR = x + y - turn;
 }
 
 Vector2D controller_target;

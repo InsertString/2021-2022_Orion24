@@ -4,16 +4,14 @@
 Controller master(E_CONTROLLER_MASTER);
 
 // drive motors
-Motor driveFL(11);
-Motor driveFR(12);
-Motor driveBL(13);
-Motor driveBR(14);
-Motor driveSF(15);
-Motor driveSB(16);
-
-//mogo intake
-Motor mogoIntakeL(1);
-Motor mogoIntakeR(2);
+Motor driveLFL(11);
+Motor driveLFR(12);
+Motor driveLBL(13);
+Motor driveLBR(14);
+Motor driveRFL(15);
+Motor driveRFR(16);
+Motor driveRBL(17);
+Motor driveRBR(18);
 
 // sensors
 Imu imu(10);
@@ -74,38 +72,13 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	double t_L = 0;
-	double e_L = 0;
-	double t_R = 0;
-	double e_R = 0;
 
 	while (true) {
 		if (imu.is_calibrating() == false) {
 			relativeDriveControl();
-
-
-			if (master.get_digital(DIGITAL_L1)) {
-				mogoIntakeL = 100;
-				mogoIntakeR = -100;
-				t_L = mogoIntakeL.get_position();
-				t_R = mogoIntakeR.get_position();
-			}
-			else if (master.get_digital(DIGITAL_L2)) {
-				mogoIntakeL = -30;
-				mogoIntakeR = 30;
-				t_L = mogoIntakeL.get_position();
-				t_R = mogoIntakeR.get_position();
-			}
-			else {
-				e_L = t_L - mogoIntakeL.get_position();
-				e_R = t_R - mogoIntakeR.get_position();
-				mogoIntakeL = e_L * 0.1;
-				mogoIntakeR = e_R * 0.1;
-			}
 		}
 		//power_drive(master.get_analog(ANALOG_LEFT_X), master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_X));
-		//driveBL = master.get_analog(ANALOG_LEFT_Y);
-		printf("test\n");
+		//printf("test\n");
 		delay(20);
 	}
 }
