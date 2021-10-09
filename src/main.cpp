@@ -11,9 +11,13 @@ Motor driveBR(14);
 Motor driveSF(15);
 Motor driveSB(16);
 
+Motor escalator(20);
+
 //mogo intake
 Motor mogoIntakeL(1);
 Motor mogoIntakeR(2);
+Motor arm(3);
+Motor clamp(17);
 
 // sensors
 Imu imu(10);
@@ -78,30 +82,56 @@ void opcontrol() {
 	double e_L = 0;
 	double t_R = 0;
 	double e_R = 0;
+	double t_A = 0;
+	double e_A = 0;
 
 	while (true) {
 		if (imu.is_calibrating() == false) {
 			relativeDriveControl();
+		}
 
 
-			if (master.get_digital(DIGITAL_L1)) {
-				mogoIntakeL = 100;
-				mogoIntakeR = -100;
-				t_L = mogoIntakeL.get_position();
-				t_R = mogoIntakeR.get_position();
-			}
-			else if (master.get_digital(DIGITAL_L2)) {
-				mogoIntakeL = -30;
-				mogoIntakeR = 30;
-				t_L = mogoIntakeL.get_position();
-				t_R = mogoIntakeR.get_position();
-			}
-			else {
-				e_L = t_L - mogoIntakeL.get_position();
-				e_R = t_R - mogoIntakeR.get_position();
-				mogoIntakeL = e_L * 0.1;
-				mogoIntakeR = e_R * 0.1;
-			}
+		if (master.get_digital(DIGITAL_L1)) {
+			mogoIntakeL = 100;
+			mogoIntakeR = -100;
+			t_L = mogoIntakeL.get_position();
+			t_R = mogoIntakeR.get_position();
+		}
+		else if (master.get_digital(DIGITAL_L2)) {
+			mogoIntakeL = -30;
+			mogoIntakeR = 30;
+			t_L = mogoIntakeL.get_position();
+			t_R = mogoIntakeR.get_position();
+		}
+		else {
+			e_L = t_L - mogoIntakeL.get_position();
+			e_R = t_R - mogoIntakeR.get_position();
+			mogoIntakeL = e_L * 0.1;
+			mogoIntakeR = e_R * 0.1;
+		}
+
+
+		if (master.get_digital(DIGITAL_R1)) {
+			arm = 127;
+			t_A = arm.get_position();
+		}
+		else if (master.get_digital(DIGITAL_R2)) {
+			arm = -100;
+			t_A = arm.get_position();
+		}
+		else {
+			e_A = t_A - arm.get_position();
+			arm = e_A * 0.1;
+		}
+
+		if (master.get_digital(DIGITAL_X)) {
+			clamp = 60;
+		}
+		else if (master.get_digital(DIGITAL_B)) {
+			clamp = -60;
+		}
+		else {
+			clamp = 0;
 		}
 		//power_drive(master.get_analog(ANALOG_LEFT_X), master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_X));
 		//driveBL = master.get_analog(ANALOG_LEFT_Y);

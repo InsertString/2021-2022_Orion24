@@ -38,5 +38,5 @@ void relativeDriveControl() {
     std::cout << std::setw(10) << std::setprecision(3) << delta_theta << "] imuH[";
     std::cout << std::setw(10) << std::setprecision(3) << imu.get_heading() << "]" << std::flush;
 
-    power_drive(resultant.x, resultant.y, master.get_analog(ANALOG_RIGHT_X));
+    power_drive(resultant.x * 1.2, resultant.y, master.get_analog(ANALOG_RIGHT_X));
 }
