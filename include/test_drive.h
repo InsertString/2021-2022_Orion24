@@ -8,6 +8,6 @@
 void power_drive(double x, double y, double turn);
 
 // controls the drive relative to the origin based on orientation
-void relativeDriveControl();
+void relativeDriveControl(double target_theta, bool hold_theta);
 
 #endif

@@ -13,8 +13,14 @@ Motor driveRFR(16);
 Motor driveRBL(17);
 Motor driveRBR(18);
 
+Motor SideRollers(9);
+Motor Elevator(2);
+
+Motor MogoLeft(20);
+Motor MogoRight(1);
+
 // sensors
-Imu imu(10);
+Imu imu(19);
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -73,10 +79,63 @@ void autonomous() {}
  */
 void opcontrol() {
 
+	double rollerState = 0;
+	bool pulse_elevator = false;
+	Timer pulse_timer;
+	double targetAngle = 0;
+	bool holdAngle = false;
+
 	while (true) {
 		if (imu.is_calibrating() == false) {
-			relativeDriveControl();
+			if (master.get_digital_new_press(DIGITAL_X)) {
+				targetAngle = imu.get_heading();
+				holdAngle = (holdAngle == true) ? false : true;
+				relativeDriveControl(targetAngle, holdAngle);
+			}
+			else {
+				relativeDriveControl(imu.get_heading(), holdAngle);
+			}
 		}
+
+		if (master.get_digital_new_press(DIGITAL_L1)) {
+			pulse_elevator = (pulse_elevator == true) ? false : true;
+			rollerState = (rollerState == -127) ? 0 : -127;
+			pulse_timer.reset();
+		}
+
+		if (pulse_elevator == true) {
+			Elevator = 80;
+			/*
+			if (pulse_timer.delta_time() < 300) {
+				Elevator = 127;
+			}
+			else if (pulse_timer.delta_time() >= 300 && pulse_timer.delta_time() < 600) {
+				Elevator = 0;
+			}
+			else {
+				Elevator = 0;
+				pulse_timer.reset();
+			}
+			*/
+		}
+		else {
+			Elevator = 0;
+		}
+
+		if (master.get_digital(DIGITAL_R1)) {
+			MogoLeft = 127;
+			MogoRight = -127;
+		}
+		else if (master.get_digital(DIGITAL_R2)) {
+			MogoLeft = -127;
+			MogoRight = 127;
+		}
+		else {
+			MogoLeft = 0;
+			MogoRight = 0;
+		}
+
+		SideRollers = rollerState;
 		//power_drive(master.get_analog(ANALOG_LEFT_X), master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_X));
 		//printf("test\n");
 		delay(20);
