@@ -105,18 +105,6 @@ void opcontrol() {
 
 		if (pulse_elevator == true) {
 			Elevator = 80;
-			/*
-			if (pulse_timer.delta_time() < 300) {
-				Elevator = 127;
-			}
-			else if (pulse_timer.delta_time() >= 300 && pulse_timer.delta_time() < 600) {
-				Elevator = 0;
-			}
-			else {
-				Elevator = 0;
-				pulse_timer.reset();
-			}
-			*/
 		}
 		else {
 			Elevator = 0;
@@ -136,8 +124,6 @@ void opcontrol() {
 		}
 
 		SideRollers = rollerState;
-		//power_drive(master.get_analog(ANALOG_LEFT_X), master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_X));
-		//printf("test\n");
 		delay(20);
 	}
 }
