@@ -84,12 +84,14 @@ void opcontrol(void);
 extern Controller master;
 
 // extern drive mtoors
-extern Motor driveFL;
-extern Motor driveFR;
-extern Motor driveBL;
-extern Motor driveBR;
-extern Motor driveSF;
-extern Motor driveSB;
+extern Motor driveLFL;
+extern Motor driveLFR;
+extern Motor driveLBL;
+extern Motor driveLBR;
+extern Motor driveRFR;
+extern Motor driveRFL;
+extern Motor driveRBL;
+extern Motor driveRBR;
 
 // extern for sensors
 extern Imu imu;

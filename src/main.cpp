@@ -4,23 +4,23 @@
 Controller master(E_CONTROLLER_MASTER);
 
 // drive motors
-Motor driveFL(11);
-Motor driveFR(12);
-Motor driveBL(13);
-Motor driveBR(14);
-Motor driveSF(15);
-Motor driveSB(16);
+Motor driveLFL(11);
+Motor driveLFR(12);
+Motor driveLBL(13);
+Motor driveLBR(14);
+Motor driveRFL(15);
+Motor driveRFR(16);
+Motor driveRBL(17);
+Motor driveRBR(18);
 
-Motor escalator(20);
+Motor SideRollers(9);
+Motor Elevator(2);
 
-//mogo intake
-Motor mogoIntakeL(1);
-Motor mogoIntakeR(2);
-Motor arm(3);
-Motor clamp(17);
+Motor MogoLeft(20);
+Motor MogoRight(1);
 
 // sensors
-Imu imu(10);
+Imu imu(19);
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -78,64 +78,66 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	double t_L = 0;
-	double e_L = 0;
-	double t_R = 0;
-	double e_R = 0;
-	double t_A = 0;
-	double e_A = 0;
+
+	double rollerState = 0;
+	bool pulse_elevator = false;
+	Timer pulse_timer;
+	double targetAngle = 0;
+	bool holdAngle = false;
 
 	while (true) {
 		if (imu.is_calibrating() == false) {
-			relativeDriveControl();
+			if (master.get_digital_new_press(DIGITAL_X)) {
+				targetAngle = imu.get_heading();
+				holdAngle = (holdAngle == true) ? false : true;
+				relativeDriveControl(targetAngle, holdAngle);
+			}
+			else {
+				relativeDriveControl(imu.get_heading(), holdAngle);
+			}
 		}
 
-
-		if (master.get_digital(DIGITAL_L1)) {
-			mogoIntakeL = 100;
-			mogoIntakeR = -100;
-			t_L = mogoIntakeL.get_position();
-			t_R = mogoIntakeR.get_position();
+		if (master.get_digital_new_press(DIGITAL_L1)) {
+			pulse_elevator = (pulse_elevator == true) ? false : true;
+			rollerState = (rollerState == -127) ? 0 : -127;
+			pulse_timer.reset();
 		}
-		else if (master.get_digital(DIGITAL_L2)) {
-			mogoIntakeL = -30;
-			mogoIntakeR = 30;
-			t_L = mogoIntakeL.get_position();
-			t_R = mogoIntakeR.get_position();
+
+		if (pulse_elevator == true) {
+			Elevator = 80;
+			/*
+			if (pulse_timer.delta_time() < 300) {
+				Elevator = 127;
+			}
+			else if (pulse_timer.delta_time() >= 300 && pulse_timer.delta_time() < 600) {
+				Elevator = 0;
+			}
+			else {
+				Elevator = 0;
+				pulse_timer.reset();
+			}
+			*/
 		}
 		else {
-			e_L = t_L - mogoIntakeL.get_position();
-			e_R = t_R - mogoIntakeR.get_position();
-			mogoIntakeL = e_L * 0.1;
-			mogoIntakeR = e_R * 0.1;
+			Elevator = 0;
 		}
-
 
 		if (master.get_digital(DIGITAL_R1)) {
-			arm = 127;
-			t_A = arm.get_position();
+			MogoLeft = 127;
+			MogoRight = -127;
 		}
 		else if (master.get_digital(DIGITAL_R2)) {
-			arm = -100;
-			t_A = arm.get_position();
+			MogoLeft = -127;
+			MogoRight = 127;
 		}
 		else {
-			e_A = t_A - arm.get_position();
-			arm = e_A * 0.1;
+			MogoLeft = 0;
+			MogoRight = 0;
 		}
 
-		if (master.get_digital(DIGITAL_X)) {
-			clamp = 60;
-		}
-		else if (master.get_digital(DIGITAL_B)) {
-			clamp = -60;
-		}
-		else {
-			clamp = 0;
-		}
+		SideRollers = rollerState;
 		//power_drive(master.get_analog(ANALOG_LEFT_X), master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_X));
-		//driveBL = master.get_analog(ANALOG_LEFT_Y);
-		printf("test\n");
+		//printf("test\n");
 		delay(20);
 	}
 }
