@@ -79,51 +79,7 @@ void autonomous() {}
  */
 void opcontrol() {
 
-	double rollerState = 0;
-	bool pulse_elevator = false;
-	Timer pulse_timer;
-	double targetAngle = 0;
-	bool holdAngle = false;
-
 	while (true) {
-		if (imu.is_calibrating() == false) {
-			if (master.get_digital_new_press(DIGITAL_X)) {
-				targetAngle = imu.get_heading();
-				holdAngle = (holdAngle == true) ? false : true;
-				relativeDriveControl(targetAngle, holdAngle);
-			}
-			else {
-				relativeDriveControl(imu.get_heading(), holdAngle);
-			}
-		}
 
-		if (master.get_digital_new_press(DIGITAL_L1)) {
-			pulse_elevator = (pulse_elevator == true) ? false : true;
-			rollerState = (rollerState == -127) ? 0 : -127;
-			pulse_timer.reset();
-		}
-
-		if (pulse_elevator == true) {
-			Elevator = 80;
-		}
-		else {
-			Elevator = 0;
-		}
-
-		if (master.get_digital(DIGITAL_R1)) {
-			MogoLeft = 127;
-			MogoRight = -127;
-		}
-		else if (master.get_digital(DIGITAL_R2)) {
-			MogoLeft = -127;
-			MogoRight = 127;
-		}
-		else {
-			MogoLeft = 0;
-			MogoRight = 0;
-		}
-
-		SideRollers = rollerState;
-		delay(20);
 	}
 }

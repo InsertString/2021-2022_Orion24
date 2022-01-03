@@ -1,5 +1,5 @@
 #include "main.h"
-#include "test_drive.h"
+#include "drive.h"
 
 void power_drive(double x, double y, double turn) {
     driveLFL = -x - y - turn;
@@ -22,14 +22,14 @@ void relativeDriveControl(double target_theta, bool hold_theta) {
     // calculate the direction and magnitude the controller wants the robot to go in
     if (fabs(master.get_analog(ANALOG_LEFT_X)) > 5)
       controller_target.x = master.get_analog(ANALOG_LEFT_X);
-    else 
+    else
       controller_target.x = 0;
-    
+
     if (fabs(master.get_analog(ANALOG_LEFT_Y)) > 5)
       controller_target.y = master.get_analog(ANALOG_LEFT_Y);
     else
-      controller_target.y = 0; 
-    
+      controller_target.y = 0;
+
     delta_theta = controller_target.getAngle() - (target_theta * 3.14159 / 180);
 
     resultant.x = controller_target.getLength() * sin(delta_theta);
