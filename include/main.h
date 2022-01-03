@@ -39,6 +39,7 @@
 #include "Timer.hpp"
 #include "Vector2D.hpp"
 #include "drive.h"
+#include "odometry.hpp"
 #include "math.h"
 #include "iomanip"
 
