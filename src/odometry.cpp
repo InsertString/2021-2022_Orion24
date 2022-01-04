@@ -8,8 +8,7 @@ using namespace std;
 // wheels are 200mm circumfrance
 double DistCM(int a) {
   //if (a == 0) return (LeftEncoder.get_value() / 360.0 * 20.0);
-  //else if (a == 1) return (RightEncoder.get_value() / 360.0 * 20.0);
-  //else return (BackEncoder.get_value() / 360.0 * 25.9);
+  //else return (BackEncoder.get_value() / 360.0 * 20.0);
   return a;
 }
 
@@ -28,16 +27,16 @@ double sideL = 17.5;
 double sideR = 17.5;
 double sideB = 16.75;
 
-CVector pastGlobalPosition(0,0);
-CVector GlobalPosition(0,0);
-CVector localOffset(0,0);
-CVector globalOffset(0,0);
+Vector2D pastGlobalPosition(0,0);
+Vector2D GlobalPosition(0,0);
+Vector2D localOffset(0,0);
+Vector2D globalOffset(0,0);
 
-CVector local_x(0,0);
-CVector local_y(0,0);
+Vector2D local_x(0,0);
+Vector2D local_y(0,0);
 
-double delta_enc[3] = {0,0,0};
-double past_enc[3] = {0,0,0};
+double delta_enc[2] = {};
+double past_enc[2] = {};
 
 double past_angle = 0;
 double new_angle = 0;
@@ -62,7 +61,7 @@ void CalculatePosition() {
 
     // setup for next reset
     past_angle = (imu_value() / 180 * 3.1415);
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
       past_enc[i] = DistCM(i);
     }
     pastGlobalPosition = GlobalPosition;
@@ -71,7 +70,7 @@ void CalculatePosition() {
     delay(20);
 
     // calulate change in encoder values
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
       delta_enc[i] = DistCM(i) - past_enc[i];
     }
 

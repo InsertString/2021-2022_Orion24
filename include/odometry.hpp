@@ -13,8 +13,9 @@ extern double average_angle;
 extern double delta_angle;
 extern double past_global_angle;
 extern double global_angle;
+extern Vector2D GlobalPosition;
 
-extern double delta_enc[3];
-extern double past_enc[3];
+extern double delta_enc[2];
+extern double past_enc[2];
 
 #endif
