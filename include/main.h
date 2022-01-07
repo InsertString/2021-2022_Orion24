@@ -40,6 +40,7 @@
 #include "Vector2D.hpp"
 #include "drive.h"
 #include "odometry.hpp"
+#include "auto_functions.h"
 #include "math.h"
 #include "iomanip"
 
@@ -95,10 +96,18 @@ extern Motor driveRBL;
 extern Motor driveRBR;
 extern Motor ArmLeft;
 extern Motor ArmRight;
+extern Motor Elevator;
+extern Motor MogoLeft;
+extern Motor MogoRight;
 
 // extern for sensors
 extern Imu imu;
 extern ADIEncoder RightEncoder;
 extern ADIEncoder BackEncoder;
+extern ADIDigitalIn MogoLimit;
+
+// extern for pnuematics
+extern ADIDigitalOut Claw;
+extern ADIDigitalOut MogoShifter;
 
 #endif  // _PROS_MAIN_H_

@@ -18,7 +18,7 @@ Vector2D unit_resultant;
 double delta_theta;
 double turn_power;
 
-void relativeDriveControl(double target_theta, bool hold_theta) {
+void relativeDriveControl(double target_theta, bool hold_theta, bool debug) {
     // calculate the direction and magnitude the controller wants the robot to go in
     if (fabs(master.get_analog(ANALOG_LEFT_X)) > 5)
       controller_target.x = master.get_analog(ANALOG_LEFT_X);
@@ -35,10 +35,12 @@ void relativeDriveControl(double target_theta, bool hold_theta) {
     resultant.x = controller_target.getLength() * sin(delta_theta);
     resultant.y = controller_target.getLength() * cos(delta_theta);
 
-    std::cout << "\r" << "rx[" << std::setw(5) << std::setprecision(3) << resultant.x;
-    std::cout << "] ry[" << std::setw(5) << std::setprecision(3) << resultant.y << "] dT[";
-    std::cout << std::setw(10) << std::setprecision(3) << delta_theta << "] imuH[";
-    std::cout << std::setw(10) << std::setprecision(3) << target_theta << "]" << std::flush;
+    if (debug == true) {
+      std::cout << "\r" << "rx[" << std::setw(5) << std::setprecision(3) << resultant.x;
+      std::cout << "] ry[" << std::setw(5) << std::setprecision(3) << resultant.y << "] dT[";
+      std::cout << std::setw(10) << std::setprecision(3) << delta_theta << "] imuH[";
+      std::cout << std::setw(10) << std::setprecision(3) << target_theta << "]" << std::flush;
+    }
 
     if (hold_theta == true) {
       turn_power = (target_theta - imu.get_heading()) * 3;

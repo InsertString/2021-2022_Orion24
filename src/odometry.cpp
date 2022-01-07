@@ -9,7 +9,6 @@ using namespace std;
 double DistCM(int a) {
   if (a == 0) return (RightEncoder.get_value() / 360.0 * 20.0);
   else return (BackEncoder.get_value() / 360.0 * 20.0);
-  return a;
 }
 
 
@@ -23,7 +22,6 @@ void odomDebug() {
   printf("%4.0f, %4.0f, %4.0f\n", GlobalPosition.x, GlobalPosition.y, imu_value());
 }
 
-double sideL = 17.5;
 double sideR = 17.5;
 double sideB = 16.75;
 
@@ -49,9 +47,8 @@ double global_angle_d() {
   return global_angle * 180 / 3.1415;
 }
 
-#define LEFT 0
-#define RIGHT 1
-#define BACK 2
+#define RIGHT 0
+#define BACK 1
 
 
 void CalculatePosition() {
@@ -87,7 +84,7 @@ void CalculatePosition() {
     localOffset.x = delta_enc[BACK] + (delta_angle * sideB);
 
     // local offset y term is based on triangles
-    localOffset.y = (0.5 * (delta_enc[LEFT] - delta_enc[RIGHT])) + delta_enc[RIGHT];
+    localOffset.y = delta_enc[RIGHT] + (delta_angle * sideR);
 
     // in order to convert the local offset vector to a global offset vector, you need
     // to turn each component of the local position vector into global position vector rotated
