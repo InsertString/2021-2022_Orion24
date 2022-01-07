@@ -93,8 +93,12 @@ extern Motor driveRFR;
 extern Motor driveRFL;
 extern Motor driveRBL;
 extern Motor driveRBR;
+extern Motor ArmLeft;
+extern Motor ArmRight;
 
 // extern for sensors
 extern Imu imu;
+extern ADIEncoder RightEncoder;
+extern ADIEncoder BackEncoder;
 
 #endif  // _PROS_MAIN_H_

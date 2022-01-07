@@ -4,24 +4,33 @@
 Controller master(E_CONTROLLER_MASTER);
 
 // drive motors
-Motor driveLFL(11);
-Motor driveLFR(12);
-Motor driveLBL(13);
-Motor driveLBR(14);
-Motor driveRFL(15);
-Motor driveRFR(16);
-Motor driveRBL(17);
-Motor driveRBR(18);
+Motor driveLFL(19);
+Motor driveLFR(20);
+Motor driveLBL(9);
+Motor driveLBR(10);
+Motor driveRFL(11);
+Motor driveRFR(12);
+Motor driveRBL(1);
+Motor driveRBR(2);
 
-Motor SideRollers(9);
-Motor Elevator(2);
+Motor ArmLeft(15);
+Motor ArmRight(14);
 
-Motor MogoLeft(20);
-Motor MogoRight(1);
+Motor Elevator(17);
+
+Motor MogoLeft(18);
+Motor MogoRight(13);
 
 // sensors
-Imu imu(19);
+Imu imu(3);
 
+ADIEncoder RightEncoder(3, 4, false);
+ADIEncoder BackEncoder(5, 6, false);
+
+ADIDigitalOut Claw(7);
+ADIDigitalOut MogoShifter(2);
+
+ADIDigitalIn MogoLimit(8);
 
 
 /**
@@ -32,7 +41,7 @@ Imu imu(19);
  */
 void initialize() {
 	lcd::initialize();
-	//delay(1000);
+	//Claw.set_value(true);
 }
 
 /**
@@ -81,7 +90,75 @@ void autonomous() {}
  */
 void opcontrol() {
 
-	while (true) {
+	bool claw_state = true;
+	bool mogo_shifter_state = false;
+	bool elevator_state = false;
+	bool mogo_state = false;
 
+	while (true) {
+		lcd::print(0, "Mogo[%f]", MogoRight.get_position());
+		lcd::print(1, "ArmL[%f]", ArmLeft.get_position());
+		lcd::print(2, "ArmR[%f]", ArmRight.get_position());
+
+		if (MogoLimit.get_value() == 1) {
+			MogoRight.tare_position();
+			MogoLeft.tare_position();
+		}
+
+		power_drive(master.get_analog(ANALOG_LEFT_X), master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_X));
+
+		if (elevator_state) {
+			Elevator = -127;
+		}
+		else {
+			Elevator = 0;
+		}
+
+		if (master.get_digital_new_press(DIGITAL_X)) {
+			elevator_state = !elevator_state;
+		}
+
+		if (master.get_digital_new_press(DIGITAL_L1)) {
+			mogo_state = true;
+		}
+
+		if (master.get_digital(DIGITAL_L2) && MogoLimit.get_value() == 0) {
+			MogoLeft = -127;
+			MogoRight = 127;
+			mogo_state = false;
+		}
+		else if (mogo_state == true) {
+			MogoLeft.move_absolute(1320, 100);
+			MogoRight.move_absolute(-1320, 100);
+			mogo_shifter_state = true;
+		}
+		else {
+			MogoLeft = 0;
+			MogoRight = 0;
+			mogo_shifter_state = false;
+		}
+
+		if (master.get_digital_new_press(DIGITAL_Y)) {
+			claw_state = !claw_state;
+		}
+
+		Claw.set_value(claw_state);
+
+		MogoShifter.set_value(mogo_shifter_state);
+
+		if (master.get_digital(DIGITAL_R1)) {
+			ArmLeft = -127;
+			ArmRight = 127;
+		}
+		else if (master.get_digital(DIGITAL_R2)) {
+			ArmLeft = 127;
+			ArmRight = -127;
+		}
+		else {
+			ArmLeft = 0;
+			ArmRight = 0;
+		}
+
+		delay(5);
 	}
 }

@@ -7,8 +7,8 @@ using namespace std;
 
 // wheels are 200mm circumfrance
 double DistCM(int a) {
-  //if (a == 0) return (LeftEncoder.get_value() / 360.0 * 20.0);
-  //else return (BackEncoder.get_value() / 360.0 * 20.0);
+  if (a == 0) return (RightEncoder.get_value() / 360.0 * 20.0);
+  else return (BackEncoder.get_value() / 360.0 * 20.0);
   return a;
 }
 
