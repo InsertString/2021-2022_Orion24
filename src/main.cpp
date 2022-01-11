@@ -20,11 +20,10 @@ Motor ArmRight(14);
 #define ARM_HOVER 1
 #define ARM_STACK 2
 #define ARM_MAX 3
-// TODO: generate arm height values
 #define ARM_MIN_POS 0
 #define ARM_HOVER_POS 200
-#define ARM_STACK_POS 1300
-#define ARM_MAX_POS 2000
+#define ARM_STACK_POS 1100
+#define ARM_MAX_POS 1800
 
 // ring elevator
 Motor Elevator(17, true);
@@ -33,24 +32,35 @@ Motor Elevator(17, true);
 #define ELEVATOR_OUTAKE 2
 
 // mogo intake
-Motor MogoLeft(18, true);
-Motor MogoRight(13);
-// TODO: generate mogo height values
-#define MOGO_MAX_POS 1340
+Motor MogoLeft(18);
+Motor MogoRight(13, true);
+#define MOGO_MAX_POS 1270
 #define MOGO_MID_POS 800
 #define MOGO_MIN_POS 0
 
 // sensors
 Imu imu(3);
 
-ADIEncoder RightEncoder(3, 4, false);
-ADIEncoder BackEncoder(5, 6, false);
+ADIEncoder RightEncoder(5, 6, true);
+ADIEncoder BackEncoder(3, 4, false);
 ADIDigitalIn MogoLimit(8);
 
 // pneumatics
 ADIDigitalOut Claw(7);
 ADIDigitalOut MogoShifter(2);
 
+/*
+ * Odometry Task
+ * Tracks the position of the robot
+*/
+void odom_task(void* param) {
+	while (true) {
+		CalculatePosition();
+		odomDebug();
+	}
+}
+
+Task odom (odom_task, NULL, TASK_PRIORITY_DEFAULT-1, TASK_STACK_DEPTH_DEFAULT, "ODOM");
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -111,7 +121,6 @@ void opcontrol() {
 	bool claw_state = true;
 	bool mogo_shifter_state = false;
 	bool mogo_state = false;
-	bool arm_state = false;
 	unsigned int elevator_state = 0;
 	unsigned int arm_state = 0;
 
@@ -133,7 +142,7 @@ void opcontrol() {
 
 		// elevator
 		if (master.get_digital_new_press(DIGITAL_Y)) {
-			if (elevator_state == 2)
+			if (elevator_state == 1)
 				elevator_state = 0;
 			else
 				elevator_state++;
@@ -144,10 +153,7 @@ void opcontrol() {
 			Elevator = 0;
 			break;
 			case ELEVATOR_INTAKE :
-			Elevator = 127;
-			break;
-			case ELEVATOR_OUTAKE :
-			Elevator = -127;
+			Elevator = 100;
 			break;
 		}
 
@@ -158,14 +164,16 @@ void opcontrol() {
 			mogo_state = !mogo_state;
 
 		if (mogo_state == false && MogoLimit.get_value() == 0) {
-			mogo_shifter_state = false;
-			MogoLeft.move_absolute(MOGO_MIN_POS, 100);
-			MogoRight.move_absolute(MOGO_MIN_POS, 100);
+			if (MogoLeft.get_position() < 100) {
+				mogo_shifter_state = false;
+			}
+			MogoLeft = -70;
+			MogoRight = -70;
 		}
 		else if (mogo_state == true) {
-			if (MogoLimit.get_value() == 0) {
-				MogoLeft = -70;
-				MogoRight = -70;
+			if (MogoLimit.get_value() == 1) {
+				MogoLeft = 70;
+				MogoRight = 70;
 			}
 			else {
 				MogoLeft.move_absolute(MOGO_MAX_POS, 100);
@@ -191,7 +199,7 @@ void opcontrol() {
 			else if (arm_state == ARM_HOVER || arm_state == ARM_STACK) arm_state = ARM_MAX;
 			else if (arm_state == ARM_MAX) arm_state = ARM_STACK;
 		}
-		else if (master.get_digital_new_press(DIGITAL_L2)) {
+		else if (master.get_digital_new_press(DIGITAL_R2)) {
 			arm_state = ARM_MIN;
 		}
 

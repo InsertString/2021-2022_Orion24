@@ -13,17 +13,12 @@ double DistCM(int a) {
 
 
 double imu_value() {
-  int factor_of_360 = 0;
-  factor_of_360 = imu.get_rotation() / 360;
-  return imu.get_rotation();// - (360 * factor_of_360);
+  double val = (int)(imu.get_rotation() * 100);
+  return val / 100;
 }
 
-void odomDebug() {
-  printf("%4.0f, %4.0f, %4.0f\n", GlobalPosition.x, GlobalPosition.y, imu_value());
-}
-
-double sideR = 17.5;
-double sideB = 16.75;
+double sideR = 21.6;
+double sideB = 11.4;
 
 Vector2D pastGlobalPosition(0,0);
 Vector2D GlobalPosition(0,0);
@@ -50,6 +45,12 @@ double global_angle_d() {
 #define RIGHT 0
 #define BACK 1
 
+void odomDebug() {
+  printf("X = %4.0f, Y = %4.0f, theta = %4.0f\n", GlobalPosition.x, GlobalPosition.y, imu_value());
+  //printf("lX = %1.5f, lY = %1.5f, theta = %4yhg.0f\n", localOffset.x, localOffset.y, imu_value());
+  //printf("lX = %4.5f, lY = %4.5f, theta = %3.5f\n", localOffset.x, localOffset.y, imu_value());
+  //printf("RE = %4.0f, BE = %4.0f\n", DistCM(RIGHT), DistCM(BACK));
+}
 
 void CalculatePosition() {
   // only run the position calculations when the imu is not initializing
@@ -79,11 +80,10 @@ void CalculatePosition() {
 
     // calculate localOffset
 
-    // local offset x term is based on the change in the back encoder and the arc formed by the
+    // local offset term is based on the change in the encoder and the arc formed by the
     // imu value with identical radius to the back encoder, this simulates having a front encoder
     localOffset.x = delta_enc[BACK] + (delta_angle * sideB);
 
-    // local offset y term is based on triangles
     localOffset.y = delta_enc[RIGHT] + (delta_angle * sideR);
 
     // in order to convert the local offset vector to a global offset vector, you need
