@@ -22,7 +22,7 @@ Motor ArmRight(14);
 #define ARM_MAX 3
 #define ARM_MIN_POS 0
 #define ARM_HOVER_POS 200
-#define ARM_STACK_POS 1100
+#define ARM_STACK_POS 1000
 #define ARM_MAX_POS 1800
 
 // ring elevator
@@ -34,7 +34,7 @@ Motor Elevator(17, true);
 // mogo intake
 Motor MogoLeft(18);
 Motor MogoRight(13, true);
-#define MOGO_MAX_POS 1270
+#define MOGO_MAX_POS 1200
 #define MOGO_MID_POS 800
 #define MOGO_MIN_POS 0
 
@@ -43,6 +43,7 @@ Imu imu(3);
 
 ADIEncoder RightEncoder(5, 6, true);
 ADIEncoder BackEncoder(3, 4, false);
+ADIDigitalIn ArmLimit(1);
 ADIDigitalIn MogoLimit(8);
 
 // pneumatics
@@ -68,9 +69,7 @@ Task odom (odom_task, NULL, TASK_PRIORITY_DEFAULT-1, TASK_STACK_DEPTH_DEFAULT, "
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
-void initialize() {
-	lcd::initialize();
-}
+void initialize() {}
 
 /**
  * Runs while the robot is in the disabled state of Field Management System or
@@ -124,9 +123,6 @@ void opcontrol() {
 	unsigned int elevator_state = 0;
 	unsigned int arm_state = 0;
 
-	ArmLeft.tare_position();
-	ArmRight.tare_position();
-
 	while (true) {
 		lcd::print(0, "Mogo[%f]", MogoRight.get_position());
 		lcd::print(1, "ArmL[%f]", ArmLeft.get_position());
@@ -135,6 +131,11 @@ void opcontrol() {
 		if (MogoLimit.get_value() == 1) {
 			MogoRight.tare_position();
 			MogoLeft.tare_position();
+		}
+
+		if (ArmLimit.get_value() == 1) {
+			ArmRight.tare_position();
+			ArmLeft.tare_position();
 		}
 
 		// drivetrain code
@@ -205,8 +206,14 @@ void opcontrol() {
 
 		switch (arm_state) {
 			case ARM_MIN :
-			ArmLeft.move_absolute(ARM_MIN_POS, 100);
-			ArmRight.move_absolute(ARM_MIN_POS, 100);
+			if (ArmLimit.get_value() == 0) {
+				ArmLeft.move_absolute(ARM_MIN_POS, 200);
+				ArmRight.move_absolute (ARM_MIN_POS, 200);
+			}
+			else {
+				ArmLeft = 0;
+				ArmRight = 0;
+			}
 			break;
 			case ARM_HOVER :
 			ArmLeft.move_absolute(ARM_HOVER_POS, 100);

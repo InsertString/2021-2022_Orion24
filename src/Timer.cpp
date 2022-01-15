@@ -1,7 +1,7 @@
 #include "main.h"
 
 Timer::Timer() {
-  start_time = 0;
+  start_time = millis();
 }
 
 void Timer::reset() {

@@ -104,6 +104,7 @@ extern Motor MogoRight;
 extern Imu imu;
 extern ADIEncoder RightEncoder;
 extern ADIEncoder BackEncoder;
+extern ADIDigitalIn ArmLimit;
 extern ADIDigitalIn MogoLimit;
 
 // extern for pnuematics

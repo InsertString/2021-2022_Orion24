@@ -3,6 +3,13 @@
 
 using namespace std;
 
+Vector2D Vector2D::getHeadingBased(double heading)  {
+  Vector2D temp;
+  temp.y = (y * (cos(heading))) + (x* (sin(heading)));
+  temp.x = (x * (cos(heading))) + (-y * (sin(heading)));
+  return temp;
+}
+
 double Vector2D::getLength() {
   return sqrt(pow(x, 2) + pow(y, 2));
 }
@@ -52,6 +59,13 @@ Vector2D Vector2D::operator+ (const Vector2D& param) {
   Vector2D temp;
   temp.x = x + param.x;
   temp.y = y + param.y;
+  return temp;
+}
+
+Vector2D Vector2D::operator- (const Vector2D& param) {
+  Vector2D temp;
+  temp.x = x - param.x;
+  temp.y = y - param.y;
   return temp;
 }
 
