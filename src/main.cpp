@@ -54,14 +54,14 @@ ADIDigitalOut MogoShifter(2);
  * Odometry Task
  * Tracks the position of the robot
 */
-void odom_task(void* param) {
-	while (true) {
-		CalculatePosition();
-		odomDebug();
-	}
-}
+Task odom (odom_task, NULL, TASK_PRIORITY_DEFAULT - 1, TASK_STACK_DEPTH_DEFAULT, "ODOM");
 
-Task odom (odom_task, NULL, TASK_PRIORITY_DEFAULT-1, TASK_STACK_DEPTH_DEFAULT, "ODOM");
+/*
+ * Dynamic Current Allocation Task
+ * Dynamically allocates current to the motors based on which systems are being used
+*/
+
+Task dca (dynamic_current_task, NULL, TASK_PRIORITY_DEFAULT - 2, TASK_STACK_DEPTH_DEFAULT, "DCAT");
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -141,6 +141,13 @@ void opcontrol() {
 		// drivetrain code
 		power_drive(master.get_analog(ANALOG_LEFT_X), master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_X));
 
+		if (fabs(master.get_analog(ANALOG_LEFT_X)) > 5 || fabs(master.get_analog(ANALOG_LEFT_Y)) > 5 || fabs(master.get_analog(ANALOG_RIGHT_X)) > 5) {
+			MotorPriority[DRIVE] = 8;
+		}
+		else {
+			MotorPriority[DRIVE] = 0;
+		}
+
 		// elevator
 		if (master.get_digital_new_press(DIGITAL_Y)) {
 			if (elevator_state == 1)
@@ -152,9 +159,11 @@ void opcontrol() {
 		switch (elevator_state) {
 			case ELEVATOR_STOP :
 			Elevator = 0;
+			MotorPriority[INTAKE] = 0;
 			break;
 			case ELEVATOR_INTAKE :
 			Elevator = 100;
+			MotorPriority[INTAKE] = 1;
 			break;
 		}
 
@@ -170,6 +179,7 @@ void opcontrol() {
 			}
 			MogoLeft = -70;
 			MogoRight = -70;
+			MotorPriority[MOGO] = 2;
 		}
 		else if (mogo_state == true) {
 			if (MogoLimit.get_value() == 1) {
@@ -181,11 +191,13 @@ void opcontrol() {
 				MogoRight.move_absolute(MOGO_MAX_POS, 100);
 			}
 			mogo_shifter_state = true;
+			MotorPriority[MOGO] = 2;
 		}
 		else {
 			MogoLeft = 0;
 			MogoRight = 0;
 			mogo_shifter_state = false;
+			MotorPriority[MOGO] = 0;
 		}
 
 		// claw
@@ -209,23 +221,28 @@ void opcontrol() {
 			if (ArmLimit.get_value() == 0) {
 				ArmLeft.move_absolute(ARM_MIN_POS, 200);
 				ArmRight.move_absolute (ARM_MIN_POS, 200);
+				MotorPriority[ARM] = 2;
 			}
 			else {
 				ArmLeft = 0;
 				ArmRight = 0;
+				MotorPriority[ARM] = 0;
 			}
 			break;
 			case ARM_HOVER :
 			ArmLeft.move_absolute(ARM_HOVER_POS, 100);
 			ArmRight.move_absolute(ARM_HOVER_POS, 100);
+			MotorPriority[ARM] = 1;
 			break;
 			case ARM_STACK :
-			ArmLeft.move_absolute(ARM_STACK_POS, 200);
-			ArmRight.move_absolute(ARM_STACK_POS, 200);
+			ArmLeft.move_absolute(ARM_STACK_POS, 100);
+			ArmRight.move_absolute(ARM_STACK_POS, 100);
+			MotorPriority[ARM] = 2;
 			break;
 			case ARM_MAX :
 			ArmLeft.move_absolute(ARM_MAX_POS, 200);
 			ArmRight.move_absolute(ARM_MAX_POS, 200);
+			MotorPriority[ARM] = 2;
 			break;
 		}
 

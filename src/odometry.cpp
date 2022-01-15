@@ -107,3 +107,11 @@ void CalculatePosition() {
     GlobalPosition.y = 0;
   }
 }
+
+
+void odom_task(void* param) {
+	while (true) {
+		CalculatePosition();
+		odomDebug();
+	}
+}

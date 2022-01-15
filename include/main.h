@@ -41,6 +41,7 @@
 #include "drive.h"
 #include "odometry.hpp"
 #include "auto_functions.h"
+#include "dca.hpp"
 #include "math.h"
 #include "iomanip"
 
