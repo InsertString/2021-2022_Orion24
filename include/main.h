@@ -42,6 +42,7 @@
 #include "odometry.hpp"
 #include "auto_functions.h"
 #include "dca.hpp"
+#include "OBarInverseKin.hpp"
 #include "math.h"
 #include "iomanip"
 
@@ -100,6 +101,8 @@ extern Motor ArmRight;
 extern Motor Elevator;
 extern Motor MogoLeft;
 extern Motor MogoRight;
+extern Motor OArm;
+extern Motor OWrist;
 
 // extern for sensors
 extern Imu imu;
@@ -107,9 +110,11 @@ extern ADIEncoder RightEncoder;
 extern ADIEncoder BackEncoder;
 extern ADIDigitalIn ArmLimit;
 extern ADIDigitalIn MogoLimit;
+extern ADIPotentiometer OBarPot;
 
 // extern for pnuematics
 extern ADIDigitalOut Claw;
 extern ADIDigitalOut MogoShifter;
+extern ADIDigitalOut Needle;
 
 #endif  // _PROS_MAIN_H_

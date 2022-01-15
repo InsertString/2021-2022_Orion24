@@ -1,5 +1,8 @@
 #include "main.h"
 
+// Object Declarations //
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
 // controller
 Controller master(E_CONTROLLER_MASTER);
 
@@ -38,6 +41,10 @@ Motor MogoRight(13, true);
 #define MOGO_MID_POS 800
 #define MOGO_MIN_POS 0
 
+// onebar
+Motor OArm(4);
+Motor OWrist(5);
+
 // sensors
 Imu imu(3);
 
@@ -45,10 +52,14 @@ ADIEncoder RightEncoder(5, 6, true);
 ADIEncoder BackEncoder(3, 4, false);
 ADIDigitalIn ArmLimit(1);
 ADIDigitalIn MogoLimit(8);
+ADIPotentiometer OBarPot({{6, 2}});
 
 // pneumatics
 ADIDigitalOut Claw(7);
 ADIDigitalOut MogoShifter(2);
+ADIDigitalOut Needle({{6, 1}});
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 /*
  * Odometry Task
@@ -63,71 +74,31 @@ Task odom (odom_task, NULL, TASK_PRIORITY_DEFAULT - 1, TASK_STACK_DEPTH_DEFAULT,
 
 Task dca (dynamic_current_task, NULL, TASK_PRIORITY_DEFAULT - 2, TASK_STACK_DEPTH_DEFAULT, "DCAT");
 
-/**
- * Runs initialization code. This occurs as soon as the program is started.
- *
- * All other competition modes are blocked by initialize; it is recommended
- * to keep execution time for this mode under a few seconds.
- */
+
 void initialize() {}
 
-/**
- * Runs while the robot is in the disabled state of Field Management System or
- * the VEX Competition Switch, following either autonomous or opcontrol. When
- * the robot is enabled, this task will exit.
- */
+
 void disabled() {}
 
-/**
- * Runs after initialize(), and before autonomous when connected to the Field
- * Management System or the VEX Competition Switch. This is intended for
- * competition-specific initialization routines, such as an autonomous selector
- * on the LCD.
- *
- * This task will exit when the robot is enabled and autonomous or opcontrol
- * starts.
- */
+
 void competition_initialize() {}
 
-/**
- * Runs the user autonomous code. This function will be started in its own task
- * with the default priority and stack size whenever the robot is enabled via
- * the Field Management System or the VEX Competition Switch in the autonomous
- * mode. Alternatively, this function may be called in initialize or opcontrol
- * for non-competition testing purposes.
- *
- * If the robot is disabled or communications is lost, the autonomous task
- * will be stopped. Re-enabling the robot will restart the task, not re-start it
- * from where it left off.
- */
+
 void autonomous() {}
 
-/**
- * Runs the operator control code. This function will be started in its own task
- * with the default priority and stack size whenever the robot is enabled via
- * the Field Management System or the VEX Competition Switch in the operator
- * control mode.
- *
- * If no competition control is connected, this function will run immediately
- * following initialize().
- *
- * If the robot is disabled or communications is lost, the
- * operator control task will be stopped. Re-enabling the robot will restart the
- * task, not resume it from where it left off.
- */
+
 void opcontrol() {
 
 	bool claw_state = true;
 	bool mogo_shifter_state = false;
-	bool mogo_state = false;
+	unsigned int mogo_state = 0;
 	unsigned int elevator_state = 0;
 	unsigned int arm_state = 0;
 
 	while (true) {
-		lcd::print(0, "Mogo[%f]", MogoRight.get_position());
-		lcd::print(1, "ArmL[%f]", ArmLeft.get_position());
-		lcd::print(2, "ArmR[%f]", ArmRight.get_position());
 
+		// Reset Motor Encoder Positions //
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 		if (MogoLimit.get_value() == 1) {
 			MogoRight.tare_position();
 			MogoLeft.tare_position();
@@ -137,18 +108,27 @@ void opcontrol() {
 			ArmRight.tare_position();
 			ArmLeft.tare_position();
 		}
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-		// drivetrain code
+
+		// Drivetrain Code //
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
+		// normal arcade drive
 		power_drive(master.get_analog(ANALOG_LEFT_X), master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_X));
 
+		// check if the driver is trying to move the robot and set the motor prio
 		if (fabs(master.get_analog(ANALOG_LEFT_X)) > 5 || fabs(master.get_analog(ANALOG_LEFT_Y)) > 5 || fabs(master.get_analog(ANALOG_RIGHT_X)) > 5) {
 			MotorPriority[DRIVE] = 8;
 		}
 		else {
-			MotorPriority[DRIVE] = 0;
+			MotorPriority[DRIVE] = 2;
 		}
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-		// elevator
+
+		// Elevator //
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 		if (master.get_digital_new_press(DIGITAL_Y)) {
 			if (elevator_state == 1)
 				elevator_state = 0;
@@ -166,22 +146,39 @@ void opcontrol() {
 			MotorPriority[INTAKE] = 1;
 			break;
 		}
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-		// mogo intake
+
+		// Mogo Intake //
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
 		MogoShifter.set_value(mogo_shifter_state);
 
-		if (master.get_digital_new_press(DIGITAL_L1))
-			mogo_state = !mogo_state;
-
-		if (mogo_state == false && MogoLimit.get_value() == 0) {
-			if (MogoLeft.get_position() < 100) {
-				mogo_shifter_state = false;
-			}
-			MogoLeft = -70;
-			MogoRight = -70;
-			MotorPriority[MOGO] = 2;
+		// mogo pneumatics toggle
+		if (master.get_digital_new_press(DIGITAL_L1)) {
+			if (mogo_state == 0) mogo_state = 1;
+			else mogo_state = 0;
 		}
-		else if (mogo_state == true) {
+		
+		// state machine for mogo intake system
+		switch (mogo_state) {
+			case 0 :
+			if (MogoLimit.get_value() == 0) {
+				if (MogoLeft.get_position() < 100) {
+					mogo_shifter_state = false;
+				}
+				MogoLeft = -70;
+				MogoRight = -70;
+				MotorPriority[MOGO] = 2;
+			}
+			else {
+				MogoLeft = 0;
+				MogoRight = 0;
+				mogo_shifter_state = false;
+				MotorPriority[MOGO] = 0;
+			}
+			break;
+			case 1 :
 			if (MogoLimit.get_value() == 1) {
 				MogoLeft = 70;
 				MogoRight = 70;
@@ -192,21 +189,24 @@ void opcontrol() {
 			}
 			mogo_shifter_state = true;
 			MotorPriority[MOGO] = 2;
+			break;
+			case 2 :
+			break;
 		}
-		else {
-			MogoLeft = 0;
-			MogoRight = 0;
-			mogo_shifter_state = false;
-			MotorPriority[MOGO] = 0;
-		}
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-		// claw
+
+		// Claw //
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 		if (master.get_digital_new_press(DIGITAL_X))
 			claw_state = !claw_state;
 
 		Claw.set_value(claw_state);
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-		// arm
+
+		// Arm //
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 		if (master.get_digital_new_press(DIGITAL_R1)) {
 			if (arm_state == ARM_MIN) arm_state = ARM_HOVER;
 			else if (arm_state == ARM_HOVER || arm_state == ARM_STACK) arm_state = ARM_MAX;
@@ -245,6 +245,7 @@ void opcontrol() {
 			MotorPriority[ARM] = 2;
 			break;
 		}
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 		delay(5);
 	}
