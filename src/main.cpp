@@ -37,7 +37,7 @@ Motor Elevator(17, true);
 // mogo intake
 Motor MogoLeft(18);
 Motor MogoRight(13, true);
-#define MOGO_MAX_POS 1200
+#define MOGO_MAX_POS 1270
 #define MOGO_MID_POS 800
 #define MOGO_MIN_POS 0
 

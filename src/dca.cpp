@@ -1,7 +1,7 @@
 #include "main.h"
 #include "dca.hpp"
 
-double MotorPriority[5] = {1,0,0,0,0};
+double MotorPriority[5] = {0,0,0,0,0};
 
 void setDriveCurrent(double c) {
     driveLBL.set_current_limit(c);
@@ -37,14 +37,9 @@ void dynamic_current_task(void * param) {
     int mn[5] = {8, 2, 2, 0, 1};
     double max = 0;
     while (true) {
-        // add up the max priority number
-        max = 0;
-        for (int i = 0; i < 5; i++) {
-            max += MotorPriority[i];
-        }
 
         for (int i = 0; i < 5; i++) {
-            c[i] = (20 * MotorPriority[i] / max) / mn[i];
+            c[i] = (20000 * MotorPriority[i] / mn[i]);
         }
 
         setDriveCurrent(c[DRIVE]);
@@ -53,5 +48,7 @@ void dynamic_current_task(void * param) {
         setOneBarCurrent(c[ONE]);
         setIntakeCurrent(c[INTAKE]);
         delay(20);
+
+        printf("d[%f] a[%f] m[%f] o[%f] i[%f] max[%f]\n", c[0], c[1], c[2], c[3], c[4], max);
     }
 }
