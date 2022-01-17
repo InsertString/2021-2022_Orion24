@@ -22,8 +22,8 @@ PID OBarPid;
 
 bool OBarMoveToPosition(double angle) {
     bool AtPosition = fabs(angle - OBarAngle()) < 1;
-    OBarPid.set_PID_variables(angle, 100, -100, 0);
-    OBarPid.set_PID_constants(4, 0, 10);
+    OBarPid.set_PID_variables(angle, 100, -100, 2);
+    OBarPid.set_PID_constants(4, 0.01, 10);
     OArm = OBarPid.output(OBarAngle());
     return AtPosition;
 }

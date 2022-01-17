@@ -44,6 +44,10 @@ Motor MogoRight(13, true);
 // onebar
 Motor OArm(6);
 Motor OWrist(7);
+#define OBAR_STATE_IDLE 0
+#define OBAR_STATE_LOADING 1
+#define OBAR_STATE_FRONT_UNLOADING 2
+#define OBAR_STATE_BACK_UNLOADING 3
 
 // sensors
 Imu imu(3);
@@ -77,6 +81,7 @@ Task dca (dynamic_current_task, NULL, TASK_PRIORITY_DEFAULT - 2, TASK_STACK_DEPT
 
 void initialize() {
 	OArm.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+	OWrist.set_brake_mode(E_MOTOR_BRAKE_HOLD);
 	OWrist.tare_position();
 }
 
@@ -134,20 +139,18 @@ void opcontrol() {
 
 		// Elevator //
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+		// toggle the elevator on or off
 		if (master.get_digital_new_press(DIGITAL_Y)) {
-			if (elevator_state == 1) elevator_state = 0;
-			else elevator_state = 1;
-		}
-
-		switch (elevator_state) {
-			case ELEVATOR_STOP :
-			Elevator = 0;
-			MotorPriority[INTAKE] = 0;
-			break;
-			case ELEVATOR_INTAKE :
-			Elevator = 100;
-			MotorPriority[INTAKE] = 1;
-			break;
+			if (elevator_state == 1) {
+				elevator_state = 0;
+				Elevator = 0;
+				MotorPriority[INTAKE] = 0;
+			}
+			else {
+				elevator_state = 1;
+				Elevator = 100;
+				MotorPriority[INTAKE] = 1;
+			}
 		}
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
@@ -172,6 +175,8 @@ void opcontrol() {
 			}
 		}
 
+		// button for OBar loading
+		// only actuate if the arm is at the minimum position
 		if (master.get_digital_new_press(DIGITAL_L2) && arm_state == ARM_MIN) {
 			mogo_state = 2;
 		}
@@ -179,19 +184,19 @@ void opcontrol() {
 			arm_state = ARM_MIN;
 		}
 
+		// manually trigger the needle intake
 		if (master.get_digital_new_press(DIGITAL_B)) {
 			needle_state = !needle_state;
 		}
 
-		if (master.get_digital_new_press(DIGITAL_RIGHT))
+		// toggle between the two unloading state
+		if (master.get_digital_new_press(DIGITAL_UP))
 			OBar_state = 2;
 		
-		if (master.get_digital_new_press(DIGITAL_LEFT)) 
+		if (master.get_digital_new_press(DIGITAL_DOWN)) 
 			OBar_state = 3;
-		
 
-		//*
-
+		// state machine for the OBar system
 		switch (OBar_state) {
 			case 0 :
 			OBarMoveToPosition(0);
@@ -211,11 +216,15 @@ void opcontrol() {
 		// state machine for mogo intake system
 		switch (mogo_state) {
 			case 0 :
+			// move the cap out of the way if the OBar is low
 			if (OBarAngle() < -65) {
 				mogo_shifter_state = true;
 			}
+			// otherwise move the mogo to the 0 position
 			else {
+				// power the mogo intake until the mogo_limit is triggered
 				if (MogoLimit.get_value() == 0) {
+					// only close the cap if the mogo is out of the way
 					if (MogoLeft.get_position() < 100) {
 						mogo_shifter_state = false;
 					}
@@ -223,6 +232,7 @@ void opcontrol() {
 					MogoRight = -70;
 					MotorPriority[MOGO] = 2;
 				}
+				// stop the intake if it is triggered
 				else {
 					MogoLeft = 0;
 					MogoRight = 0;
@@ -233,14 +243,18 @@ void opcontrol() {
 			MotorPriority[ONE] = 1;
 			break;
 			case 1 :
+			// move the mogo intake to the max out position
+			// move with voltage if the mogo_limit is triggered
 			if (MogoLimit.get_value() == 1) {
 				MogoLeft = 70;
 				MogoRight = 70;
 			}
+			// move with move_absolute if the mogo_limit is triggered
 			else {
 				MogoLeft.move_absolute(MOGO_MAX_POS, 100);
 				MogoRight.move_absolute(MOGO_MAX_POS, 100);
 			}
+			// flatten the mogo intake so that it is easier to grab a mogo
 			mogo_shifter_state = true;
 			MotorPriority[MOGO] = 2;
 			MotorPriority[ONE] = 1;			
@@ -249,8 +263,14 @@ void opcontrol() {
 			OWrist.move_absolute(100, 50);
 			if (MogoLeft.get_position() < (MOGO_MID_POS - 20)) {
 				mogo_shifter_state = true;
-				MogoLeft.move_absolute(MOGO_MID_POS, 100);
-				MogoRight.move_absolute(MOGO_MID_POS, 100);
+				if (MogoLimit.get_value() == 1) {
+					MogoLeft = 70;
+					MogoRight = 70;
+				}
+				else {
+					MogoLeft.move_absolute(MOGO_MID_POS, 100);
+					MogoRight.move_absolute(MOGO_MID_POS, 100);
+				}
 			}
 			else {
 				mogo_state++;
@@ -289,8 +309,6 @@ void opcontrol() {
 			mogo_state = 0;
 			break;
 		}
-
-		//*/
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
@@ -328,8 +346,14 @@ void opcontrol() {
 			}
 			break;
 			case ARM_HOVER :
-			ArmLeft.move_absolute(ARM_HOVER_POS, 100);
-			ArmRight.move_absolute(ARM_HOVER_POS, 100);
+			if (ArmLimit.get_value() == 1) {
+				ArmLeft = 70;
+				ArmRight = 70;
+			}
+			else {
+				ArmLeft.move_absolute(ARM_HOVER_POS, 100);
+				ArmRight.move_absolute(ARM_HOVER_POS, 100);
+			}
 			MotorPriority[ARM] = 1;
 			break;
 			case ARM_STACK :
