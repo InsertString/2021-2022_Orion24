@@ -34,12 +34,19 @@ void setIntakeCurrent(double c) {
 
 void dynamic_current_task(void * param) {
     double c[5] = {0, 0, 0, 0, 0};
-    int mn[5] = {8, 2, 2, 0, 1};
+    int mn[5] = {8, 2, 2, 2, 1};
     double max = 0;
     while (true) {
 
         for (int i = 0; i < 5; i++) {
-            c[i] = (20000 * MotorPriority[i] / mn[i]);
+            //max += MotorPriority[i];
+        }
+
+        for (int i = 0; i < 5; i++) {
+            // allocation is equal to 20A * (prio / total_prio) / (motors per system)
+            // the more systems are running the higher the total_prio.
+            // the system with the most prio should get the most amount of current to be allocated to that system.
+            c[i] = (20000 * (MotorPriority[i]) / mn[i]);
         }
 
         setDriveCurrent(c[DRIVE]);
@@ -49,6 +56,6 @@ void dynamic_current_task(void * param) {
         setIntakeCurrent(c[INTAKE]);
         delay(20);
 
-        printf("d[%f] a[%f] m[%f] o[%f] i[%f] max[%f]\n", c[0], c[1], c[2], c[3], c[4], max);
+        //printf("d[%5.0f] a[%5.0f] m[%5.0f] o[%5.0f] i[%5.0f] max[%5.0f]\n", c[0], c[1], c[2], c[3], c[4], max);
     }
 }
