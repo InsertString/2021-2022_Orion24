@@ -95,21 +95,7 @@ void competition_initialize() {}
 
 
 void autonomous() {
-	double kp[3] = {4, 4, 3};
-	double ki[3] = {0.2, 0.2, 0.01};
-	double kd[3] = {5, 5, 5};
-	Vector2D target(50, 50);
-	MotorPriority[DRIVE] = 8;
-	move_to_point(target, -90, 15000, kp, ki, kd);
-	target.x = 0;
-	target.y = 100;
-	move_to_point(target, -180, 15000, kp, ki, kd);
-	target.x = -50;
-	target.y = 50;
-	move_to_point(target, -270, 15000, kp, ki, kd);
-	target.x = 0;
-	target.y = 0;
-	move_to_point(target, -360, 15000, kp, ki, kd);
+	
 }
 
 
@@ -124,11 +110,13 @@ void opcontrol() {
 	unsigned int arm_state = 0;
 
 	while (true) {
+		/*
 		power_drive(master.get_analog(ANALOG_LEFT_X), master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_X));
 
 
 		if (master.get_digital_new_press(DIGITAL_A)) autonomous();
-		/*
+		*/
+		///*
 
 		// Reset Motor Encoder Positions //
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//

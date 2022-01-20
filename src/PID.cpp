@@ -30,6 +30,16 @@ void PID::set_PID_constants(double p, double i, double d) {
 
 
 
+// sets the value for the PID constants
+void PID::set_PID_constants(PIDVariables pid_var) {
+  kp = pid_var.kp;
+  ki = pid_var.ki;
+  kd = pid_var.kd;
+}
+
+
+
+
 // sets the value of the target, the max output, the minimum output, and the integral limit
 void PID::set_PID_variables(double target_input, double max_value, double min_value, double integral_lim) {
   target = target_input;
@@ -64,4 +74,13 @@ double PID::output(double current) {
   out = out > max ? max : out < min ? min : out;
   // return the output
   return out;
+}
+
+
+
+
+PIDVariables::PIDVariables(double p, double i, double d) {
+  kp = p;
+  ki = i;
+  kd = d;
 }

@@ -1,55 +1,22 @@
 #include "main.h"
 #include "auto_functions.h"
 
-#define X 0
-#define Y 1
-#define THETA 2
+PID mwp_x_pid;
+PID mwp_y_pid;
+PID mwp_heading_pid;
 
-void move_to_point(Vector2D target, double heading, double timeout, double kp[3], double ki[3], double kd[3]) {
-    // define the global error
-    Vector2D globalError = target - GlobalPosition;
-    // the target of the robot based on its rotational heading
-    Vector2D localTarget = target.getHeadingBased(imu.get_rotation());
-    // the current position of the robot based on its rotational heading
-    Vector2D localCurrent = GlobalPosition.getHeadingBased(imu.get_rotation());
-    // heading error
-    double heading_error = heading - imu.get_rotation();
-    // exit timer
-    Timer exit_timer;
-    exit_timer.reset();
-    // pid for the drive base
-    PID drivePidX;
-    PID drivePidY;
-    PID drivePidTheta;
+void move_with_point(Vector2D point, double heading, PIDVariables xy_pid_vars, PIDVariables heading_pid_vars) {
+    mwp_x_pid.set_PID_constants(xy_pid_vars);
+    mwp_y_pid.set_PID_constants(xy_pid_vars);
+    mwp_heading_pid.set_PID_constants(heading_pid_vars);
 
-    // config PIDs
-    drivePidX.set_PID_variables(localTarget.x, 127, -127, 2);
-    drivePidY.set_PID_variables(localTarget.y, 127, -127, 2);
-    drivePidTheta.set_PID_variables(heading, 127, -127, 10);
+    mwp_x_pid.set_PID_variables(point.getHeadingBased(global_angle).x, 127, -127, 2);
+    mwp_y_pid.set_PID_variables(point.getHeadingBased(global_angle).y, 127, -127, 2);
+    mwp_heading_pid.set_PID_variables(heading, 127, -127, 1);
 
-    drivePidX.set_PID_constants(kp[X], ki[X], kd[X]);
-    drivePidY.set_PID_constants(kp[Y], ki[Y], kd[Y]);
-    drivePidTheta.set_PID_constants(kp[THETA], ki[THETA], kd[THETA]);
+    double x_power = mwp_x_pid.output(GlobalPosition.getHeadingBased(global_angle).x);
+    double y_power = mwp_y_pid.output(GlobalPosition.getHeadingBased(global_angle).y);
+    double turn_power = mwp_heading_pid.output(imu.get_rotation());
 
-    // loop as long as the robot is more than 1 cm away from the target point and is within the time limit
-    while ((globalError.getLength() > 1 || fabs(heading_error) > 1) && exit_timer.delta_time() < timeout) {
-        // update vectors and errors
-        globalError = target - GlobalPosition;
-        localTarget = target.getHeadingBased(global_angle);
-        localCurrent = GlobalPosition.getHeadingBased(global_angle);
-        heading_error = heading - imu.get_rotation();
-
-        drivePidX.set_PID_variables(localTarget.x, 127, -127, 5);
-        drivePidY.set_PID_variables(localTarget.y, 127, -127, 5);
-
-        // set motor power
-        double x_power = drivePidX.output(localCurrent.x);
-        double y_power = drivePidY.output(localCurrent.y);
-        double theta_power = drivePidTheta.output(imu.get_rotation());
-
-        power_drive(x_power, y_power, theta_power);
-        delay(10);
-    }
-
-    power_drive(0,0,0);
+    power_drive(x_power, y_power, turn_power);
 }

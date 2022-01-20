@@ -36,9 +36,18 @@ public:
 
   // sets the values of the PID constants
   void set_PID_constants(double p, double i, double d);
+  void set_PID_constants(PIDVariables pid_var);
 
   // returns the output of your PID
   double output(double current);
+};
+
+class PIDVariables {
+public:
+  double kp;
+  double ki;
+  double kd;
+  PIDVariables(double p, double i, double d);
 };
 
 

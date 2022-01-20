@@ -1,6 +1,12 @@
 #ifndef _AUTO_FUNCTIONS_H_
 #define _AUTO_FUNCTIONS_H_
 
-void move_to_point(Vector2D target, double heading, double timeout, double kp[3], double ki[3], double kd[3]);
+enum Auto_Function {
+  COMPLETE,
+  INCOMPLETE,
+  FLAGGED
+};
+
+void move_with_point(Vector2D point, double heading, PIDVariables xy_pid_vars, PIDVariables heading_pid_vars);
 
 #endif
