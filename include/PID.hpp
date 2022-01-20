@@ -2,6 +2,15 @@
 #define _PID_HPP_
 
 
+class PIDVariables {
+public:
+  double kp;
+  double ki;
+  double kd;
+  PIDVariables(double p, double i, double d);
+};
+
+
 // PID class //
 /*
 
@@ -41,15 +50,6 @@ public:
   // returns the output of your PID
   double output(double current);
 };
-
-class PIDVariables {
-public:
-  double kp;
-  double ki;
-  double kd;
-  PIDVariables(double p, double i, double d);
-};
-
 
 
 #endif
