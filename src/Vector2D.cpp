@@ -5,8 +5,8 @@ using namespace std;
 
 Vector2D Vector2D::getHeadingBased(double heading)  {
   Vector2D temp;
-  temp.y = (y * (cos(heading))) + (x* (sin(heading)));
-  temp.x = (x * (cos(heading))) + (-y * (sin(heading)));
+  temp.y = (this->y * (cos(heading))) + ( this->x * (sin(heading)));
+  temp.x = (this->x * (cos(heading))) + (-this->y * (sin(heading)));
   return temp;
 }
 
