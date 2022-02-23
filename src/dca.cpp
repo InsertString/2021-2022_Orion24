@@ -46,7 +46,7 @@ void dynamic_current_task(void * param) {
             // allocation is equal to 20A * (prio / total_prio) / (motors per system)
             // the more systems are running the higher the total_prio.
             // the system with the most prio should get the most amount of current to be allocated to that system.
-            c[i] = (20000 * (MotorPriority[i]) / mn[i]);
+            c[i] = (19000 * (MotorPriority[i]) / mn[i]);
         }
 
         setDriveCurrent(c[DRIVE]);

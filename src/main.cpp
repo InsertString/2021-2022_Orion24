@@ -25,7 +25,7 @@ Motor ArmRight(14);
 #define ARM_MAX 3
 #define ARM_MIN_POS 0
 #define ARM_HOVER_POS 200
-#define ARM_STACK_POS 1000
+#define ARM_STACK_POS 970
 #define ARM_MAX_POS 1700
 
 // ring elevator
@@ -188,11 +188,13 @@ void opcontrol() {
 
 		// button for OBar loading
 		// only actuate if the arm is at the minimum position
-		if (master.get_digital_new_press(DIGITAL_L2) && arm_state == ARM_MIN) {
-			mogo_state = 2;
-		}
-		else if (master.get_digital_new_press(DIGITAL_L2) && arm_state != ARM_MIN) {
-			arm_state = ARM_MIN;
+		if (master.get_digital_new_press(DIGITAL_L2)) {
+			if (arm_state == ARM_MIN) {
+				mogo_state = 2;
+			}
+			else {
+				arm_state = ARM_MIN;
+			}
 		}
 
 		// manually trigger the needle intake
@@ -213,7 +215,7 @@ void opcontrol() {
 			OBarMoveToPosition(0);
 			break;
 			case 1 :
-			OBarMoveToPosition(-123);
+			OBarMoveToPosition(-120);
 			break;
 			case 2 :
 			OBarMoveToPosition(30);
@@ -306,7 +308,7 @@ void opcontrol() {
 			MotorPriority[ONE] = 1;
 			break;
 			case 4 :
-			OWrist.move_absolute(0, 50);
+			OWrist.move_absolute(0, 200);
 			MogoLeft.move_absolute(MOGO_MID_POS, 100);
 			MogoRight.move_absolute(MOGO_MID_POS, 100);
 			needle_state = true;

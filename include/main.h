@@ -35,6 +35,8 @@
 #define PROS_USE_LITERALS
 
 #include "api.h"
+#include "math.h"
+#include "iomanip"
 #include "PID.hpp"
 #include "Timer.hpp"
 #include "Vector2D.hpp"
@@ -43,8 +45,7 @@
 #include "auto_functions.h"
 #include "dca.hpp"
 #include "OBarInverseKin.hpp"
-#include "math.h"
-#include "iomanip"
+#include "auto.hpp"
 
 /**
  * If you find doing pros::Motor() to be tedious and you'd prefer just to do
