@@ -1,115 +1,78 @@
 #include "main.h"
-#include "odometry.hpp"
 
-// (90 encoderticks / 1 rot) * (1 rot / circumfrance)
-
-// wheels are 200mm circumfrance
-double DistCM(int a) {
-  if (a == 0) return (RightEncoder.get_value() / 360.0 * 20.0);
-  else return (BackEncoder.get_value() / 360.0 * 20.0);
+Vector2D Odom::getPosition() {
+  return global_position;
 }
 
-
-double imu_value() {
-  double val = (int)(imu.get_rotation() * 100);
-  return val / 100;
+Vector2D Odom::getVelocity() {
+  return velocity;
 }
 
-double sideR = 21.6;
-double sideB = 11.4;
-
-Vector2D pastGlobalPosition(0,0);
-Vector2D GlobalPosition(0,0);
-Vector2D localOffset(0,0);
-Vector2D globalOffset(0,0);
-
-Vector2D local_x(0,0);
-Vector2D local_y(0,0);
-
-double delta_enc[2] = {};
-double past_enc[2] = {};
-
-double past_angle = 0;
-double new_angle = 0;
-double average_angle = 0;
-double delta_angle = 0;
-double past_global_angle = 0;
-double global_angle = 0;
-
-double global_angle_d() {
-  return global_angle * 180 / 3.1415;
+Vector2D Odom::getAcceleration() {
+  return acceleration;
 }
 
-#define RIGHT 0
-#define BACK 1
-
-void odomDebug() {
-  printf("X = %4.0f, Y = %4.0f, theta = %4.0f\n", GlobalPosition.x, GlobalPosition.y, imu_value());
-  //printf("lX = %1.5f, lY = %1.5f, theta = %4yhg.0f\n", localOffset.x, localOffset.y, imu_value());
-  //printf("lX = %4.5f, lY = %4.5f, theta = %3.5f\n", localOffset.x, localOffset.y, imu_value());
-  //printf("RE = %4.0f, BE = %4.0f\n", DistCM(RIGHT), DistCM(BACK));
+double Odom::getAngle() {
+  double val = (int)((imu.get_rotation() + initial_angle) * 100);
+  return val / 100.0f;
 }
 
-void CalculatePosition() {
-  // only run the position calculations when the imu is not initializing
-  // other wise the positions will error out at infinity
-  if (imu.is_calibrating() == false) {
-
-    // setup for next reset
-    past_angle = (imu_value() / 180 * 3.1415);
-    for (int i = 0; i < 2; i++) {
-      past_enc[i] = DistCM(i);
-    }
-    pastGlobalPosition = GlobalPosition;
-
-    // delay for values of encoders to change
-    delay(20);
-
-    // calulate change in encoder values
-    for (int i = 0; i < 2; i++) {
-      delta_enc[i] = DistCM(i) - past_enc[i];
-    }
-
-    // calculate change in angle
-    new_angle = (imu_value() / 180 * 3.1415);
-    global_angle = (imu_value() / 180 * 3.1415);
-
-    delta_angle = new_angle - past_angle;
-
-    // calculate localOffset
-
-    // local offset term is based on the change in the encoder and the arc formed by the
-    // imu value with identical radius to the back encoder, this simulates having a front encoder
-    localOffset.x = delta_enc[BACK] + (delta_angle * sideB);
-
-    localOffset.y = delta_enc[RIGHT] + (delta_angle * sideR);
-
-    // in order to convert the local offset vector to a global offset vector, you need
-    // to turn each component of the local position vector into global position vector rotated
-    // by the global angle.
-    // then combine the two new global vectors to get a global offset vector.
-
-    local_y.x = localOffset.y * sin(global_angle);
-    local_y.y = localOffset.y * cos(global_angle);
-
-    local_x.x = localOffset.x * cos(-global_angle);
-    local_x.y = localOffset.x * sin(-global_angle);
-
-    globalOffset = local_y + local_x;
-
-    // calculate global position based on the change from the prervious global position
-    GlobalPosition = pastGlobalPosition + globalOffset;
-  }
-  else {
-    GlobalPosition.x = 0;
-    GlobalPosition.y = 0;
-  }
+double Odom::rad_angle() {
+  return getAngle() / 180 * 3.1415;
 }
 
+void Odom::configure(double x_e_dist, double x_wheel_c, double y_e_dist, double y_wheel_c, double delay) {
+  x_encoder_dist = x_e_dist;
+  x_wheel_circumfrance = x_wheel_c;
+  y_encoder_dist = y_e_dist;
+  y_wheel_circumfrance = y_wheel_c;
+  tracking_delay = delay;
+  velocity = VECTOR_2D_ZERO;
+  acceleration = VECTOR_2D_ZERO;
+  global_position = VECTOR_2D_ZERO;
+  global_offset = VECTOR_2D_ZERO;
+}
 
-void odom_task(void* param) {
-	while (true) {
-		CalculatePosition();
-		//odomDebug();
-	}
+void Odom::configure_starting(Vector2D init_pos, double init_angle) {
+  initial_position = init_pos;
+  initial_angle = init_angle;
+}
+
+void Odom::collect_data(int debug) {
+  // store current values before they update
+  past_x_encoder = XEncoder.get_value();
+  past_y_encoder = YEncoder.get_value();
+  past_angle = rad_angle();
+
+  // wait for update
+  delay(tracking_delay);
+
+  // calculate the sensor deltas
+  delta_x_encoder = XEncoder.get_value() - past_x_encoder;
+  delta_y_encoder = YEncoder.get_value() - past_y_encoder;
+  delta_angle = imu.get_rotation() - past_angle;
+
+  // convert encoder values to CM
+  delta_x_encoder = delta_x_encoder / 360 * x_wheel_circumfrance;
+  delta_y_encoder = delta_y_encoder / 360 * y_wheel_circumfrance;
+}
+
+void Odom::calculate_position(int debug) {
+  // collect data first
+  collect_data(0);
+
+  // calculate local offset
+  local_offset.x = delta_x_encoder + (delta_angle * x_encoder_dist);
+  local_offset.y = delta_y_encoder + (delta_angle * y_encoder_dist);
+
+  // calculate global offset
+  global_offset.x = (local_offset.y * sin(rad_angle())) + (local_offset.x * cos(-rad_angle()));
+  global_offset.y = (local_offset.y * cos(rad_angle())) + (local_offset.x * sin(-rad_angle()));
+
+  // apply global offset to the robot
+  global_position = global_position + global_offset;
+
+  // calculate velocity based on offset
+  double one_over_delay_in_seconds = 1 / (tracking_delay / 1000);
+  velocity = global_offset * one_over_delay_in_seconds;
 }

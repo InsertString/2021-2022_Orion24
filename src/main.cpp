@@ -8,8 +8,8 @@ Controller master(E_CONTROLLER_MASTER);
 
 // Sensors
 Imu imu(1);
-ADIEncoder RightEncoder(1, 2, false);
-ADIEncoder BackEncoder(3, 4, false);
+ADIEncoder YEncoder(1, 2, false);
+ADIEncoder XEncoder(3, 4, false);
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
@@ -17,7 +17,7 @@ ADIEncoder BackEncoder(3, 4, false);
  * Odometry Task
  * Tracks the position of the robot
 */
-Task odom (odom_task, NULL, TASK_PRIORITY_DEFAULT - 1, TASK_STACK_DEPTH_DEFAULT, "ODOM");
+//Task odom (odom_task, NULL, TASK_PRIORITY_DEFAULT - 1, TASK_STACK_DEPTH_DEFAULT, "ODOM");
 
 void initialize() {
 	imu.reset();

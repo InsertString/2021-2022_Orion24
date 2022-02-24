@@ -1,6 +1,8 @@
 #ifndef _VECTOR_CLAS_HPP_
 #define _VECTOR_CLAS_HPP_
 
+#define VECTOR_2D_ZERO Vector2D(0,0)
+
 class Vector2D {
 public:
   double x, y;

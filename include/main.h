@@ -82,7 +82,7 @@ void opcontrol(void);
 
 extern Controller master;
 extern Imu imu;
-extern ADIEncoder RightEncoder;
-extern ADIEncoder BackEncoder;
+extern ADIEncoder YEncoder;
+extern ADIEncoder XEncoder;
 
 #endif  // _PROS_MAIN_H_
