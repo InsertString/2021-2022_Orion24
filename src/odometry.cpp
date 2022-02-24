@@ -55,11 +55,22 @@ void Odom::collect_data(int debug) {
   // convert encoder values to CM
   delta_x_encoder = delta_x_encoder / 360 * x_wheel_circumfrance;
   delta_y_encoder = delta_y_encoder / 360 * y_wheel_circumfrance;
+
+  // print stuff for debugging
+  if (debug == ODOM_DEBUG_ENCODER_RAW) {
+    printf("\rX Enc = [%4.0f] Y Enc = [%4.0f]", XEncoder.get_value(), YEncoder.get_value());
+    fflush(stdout);
+  }
+  
+  if (debug == ODOM_DEBUG_ENCODER_CM) {
+    printf("\rX Enc = [%3.2f cm] Y Enc = [%3.2f cm]", XEncoder.get_value() / 360 * x_wheel_circumfrance, YEncoder.get_value() / 360 * y_wheel_circumfrance);
+    fflush(stdout);
+  }
 }
 
 void Odom::calculate_position(int debug) {
   // collect data first
-  collect_data(0);
+  collect_data(debug);
 
   // calculate local offset
   local_offset.x = delta_x_encoder + (delta_angle * x_encoder_dist);
@@ -75,4 +86,19 @@ void Odom::calculate_position(int debug) {
   // calculate velocity based on offset
   double one_over_delay_in_seconds = 1 / (tracking_delay / 1000);
   velocity = global_offset * one_over_delay_in_seconds;
+
+  if (debug == ODOM_DEBUG_GLOBAL_POSITION) {
+    printf("\rUpdate Time: [%3.0fms] X: [%3.2f] Y: [%3.2f]", tracking_delay, global_position.x, global_position.y);
+    fflush(stdout);
+  }
+
+  if (debug == ODOM_DEBUG_LOCAL_OFFSET) {
+    printf("\rUpdate Time: [%3.0fms] X: [%3.2f] Y: [%3.2f]", tracking_delay, local_offset.x, local_offset.y);
+    fflush(stdout);
+  }
+
+  if (debug == ODOM_DEBUG_VELOCITY) {
+    printf("\rUpdate Time: [%3.0fms] X: [%3.2f] Y: [%3.2f]", tracking_delay, velocity.x, velocity.y);
+    fflush(stdout);
+  }
 }

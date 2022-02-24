@@ -1,6 +1,13 @@
 #ifndef _ODOMETRY_HPP_
 #define _ODOMETRY_HPP_
 
+#define ODOM_DEBUG_NONE 0
+#define ODOM_DEBUG_ENCODER_RAW 1
+#define ODOM_DEBUG_ENCODER_CM 2
+#define ODOM_DEBUG_LOCAL_OFFSET 3
+#define ODOM_DEBUG_GLOBAL_POSITION 4
+#define ODOM_DEBUG_VELOCITY 5
+
 // Object for 2wheel Odometry
 class Odom {
 private:
@@ -39,7 +46,5 @@ public:
     void collect_data(int debug_flag);
     void calculate_position(int debug_flag);
 };
-
-void odom_task(void* param);
 
 #endif
