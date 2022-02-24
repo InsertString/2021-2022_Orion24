@@ -40,11 +40,8 @@
 #include "PID.hpp"
 #include "Timer.hpp"
 #include "Vector2D.hpp"
-#include "drive.h"
 #include "odometry.hpp"
-#include "auto_functions.h"
-#include "dca.hpp"
-#include "OBarInverseKin.hpp"
+#include "auto_functions.hpp"
 #include "auto.hpp"
 
 /**
@@ -82,65 +79,5 @@ void opcontrol(void);
  */
 //#include <iostream>
 #endif
-
-#define CONTROLLER_JOYSTICK_THRESHOLD 5
-
-// extern controllers
-extern Controller master;
-
-// extern drive mtoors
-extern Motor driveLFL;
-extern Motor driveLFR;
-extern Motor driveLBL;
-extern Motor driveLBR;
-extern Motor driveRFR;
-extern Motor driveRFL;
-extern Motor driveRBL;
-extern Motor driveRBR;
-extern Motor ArmLeft;
-extern Motor ArmRight;
-extern Motor Elevator;
-extern Motor MogoLeft;
-extern Motor MogoRight;
-extern Motor OArm;
-extern Motor OWrist;
-
-// extern for sensors
-extern Imu imu;
-extern ADIEncoder RightEncoder;
-extern ADIEncoder BackEncoder;
-extern ADIDigitalIn ArmLimit;
-extern ADIDigitalIn MogoLimit;
-extern ADIPotentiometer OBarPot;
-
-// extern for pnuematics
-extern ADIDigitalOut Claw;
-extern ADIDigitalOut MogoShifter;
-extern ADIDigitalOut Needle;
-
-
-#define ARM_MIN 0
-#define ARM_HOVER 1
-#define ARM_STACK 2
-#define ARM_MAX 3
-#define ARM_MIN_POS 0
-#define ARM_HOVER_POS 200
-#define ARM_STACK_POS 1100
-#define ARM_DOCK_POS 1300
-#define ARM_MAX_POS 1700
-
-
-#define ELEVATOR_STOP 0
-#define ELEVATOR_INTAKE 1
-#define ELEVATOR_OUTAKE 2
-
-#define MOGO_MAX_POS 1270
-#define MOGO_MID_POS 800
-#define MOGO_MIN_POS 0
-
-#define OBAR_STATE_IDLE 0
-#define OBAR_STATE_LOADING 1
-#define OBAR_STATE_FRONT_UNLOADING 2
-#define OBAR_STATE_BACK_UNLOADING 3
 
 #endif  // _PROS_MAIN_H_
