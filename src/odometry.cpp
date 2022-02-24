@@ -1,8 +1,6 @@
 #include "main.h"
 #include "odometry.hpp"
 
-using namespace std;
-
 // (90 encoderticks / 1 rot) * (1 rot / circumfrance)
 
 // wheels are 200mm circumfrance

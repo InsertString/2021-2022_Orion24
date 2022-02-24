@@ -35,11 +35,8 @@
 #define PROS_USE_LITERALS
 
 #include "api.h"
-#include "math.h"
-#include "iomanip"
-#include "PID.hpp"
-#include "Timer.hpp"
-#include "Vector2D.hpp"
+#include "base_includes.hpp"
+#include "base_functions.hpp"
 #include "odometry.hpp"
 #include "auto_functions.hpp"
 #include "auto.hpp"
@@ -53,6 +50,7 @@
  * namespace.
  */
 using namespace pros;
+using namespace std;
 // using namespace pros::literals;
 // using namespace okapi;
 
@@ -79,5 +77,12 @@ void opcontrol(void);
  */
 //#include <iostream>
 #endif
+
+//EXTERNS//
+
+extern Controller master;
+extern Imu imu;
+extern ADIEncoder RightEncoder;
+extern ADIEncoder BackEncoder;
 
 #endif  // _PROS_MAIN_H_
