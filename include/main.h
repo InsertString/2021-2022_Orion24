@@ -118,4 +118,29 @@ extern ADIDigitalOut Claw;
 extern ADIDigitalOut MogoShifter;
 extern ADIDigitalOut Needle;
 
+
+#define ARM_MIN 0
+#define ARM_HOVER 1
+#define ARM_STACK 2
+#define ARM_MAX 3
+#define ARM_MIN_POS 0
+#define ARM_HOVER_POS 200
+#define ARM_STACK_POS 1100
+#define ARM_DOCK_POS 1300
+#define ARM_MAX_POS 1700
+
+
+#define ELEVATOR_STOP 0
+#define ELEVATOR_INTAKE 1
+#define ELEVATOR_OUTAKE 2
+
+#define MOGO_MAX_POS 1270
+#define MOGO_MID_POS 800
+#define MOGO_MIN_POS 0
+
+#define OBAR_STATE_IDLE 0
+#define OBAR_STATE_LOADING 1
+#define OBAR_STATE_FRONT_UNLOADING 2
+#define OBAR_STATE_BACK_UNLOADING 3
+
 #endif  // _PROS_MAIN_H_

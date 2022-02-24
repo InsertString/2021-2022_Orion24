@@ -5,6 +5,7 @@
 
 // controller
 Controller master(E_CONTROLLER_MASTER);
+Controller partner(E_CONTROLLER_PARTNER);
 
 // drive
 Motor driveLFL(19);
@@ -19,35 +20,17 @@ Motor driveRBR(2);
 // arm
 Motor ArmLeft(15, true);
 Motor ArmRight(14);
-#define ARM_MIN 0
-#define ARM_HOVER 1
-#define ARM_STACK 2
-#define ARM_MAX 3
-#define ARM_MIN_POS 0
-#define ARM_HOVER_POS 200
-#define ARM_STACK_POS 970
-#define ARM_MAX_POS 1700
 
 // ring elevator
 Motor Elevator(17, true);
-#define ELEVATOR_STOP 0
-#define ELEVATOR_INTAKE 1
-#define ELEVATOR_OUTAKE 2
 
 // mogo intake
 Motor MogoLeft(18);
 Motor MogoRight(13, true);
-#define MOGO_MAX_POS 1270
-#define MOGO_MID_POS 800
-#define MOGO_MIN_POS 0
 
 // onebar
 Motor OArm(6);
 Motor OWrist(7);
-#define OBAR_STATE_IDLE 0
-#define OBAR_STATE_LOADING 1
-#define OBAR_STATE_FRONT_UNLOADING 2
-#define OBAR_STATE_BACK_UNLOADING 3
 
 // sensors
 Imu imu(3);
@@ -84,6 +67,9 @@ void initialize() {
 	OArm.set_brake_mode(E_MOTOR_BRAKE_HOLD);
 	OWrist.set_brake_mode(E_MOTOR_BRAKE_HOLD);
 	OWrist.tare_position();
+	Claw.set_value(false);
+	MogoShifter.set_value(false);
+	Needle.set_value(false);
 	MotorPriority[0] = 8;
 }
 
@@ -95,27 +81,29 @@ void competition_initialize() {}
 
 
 void autonomous() {
-	
+	while (true) {
+		if (master.get_digital(DIGITAL_DOWN)) break;
+	}
 }
 
 
 void opcontrol() {
 
-	bool claw_state = true;
+	bool claw_state = false;
 	bool mogo_shifter_state = false;
 	bool needle_state = false;
-	unsigned int mogo_state = 0;
-	unsigned int OBar_state = 0;
-	unsigned int elevator_state = 0;
-	unsigned int arm_state = 0;
+	int mogo_state = 0;
+	int OBar_state = 0;
+	int elevator_state = 0;
+	int arm_state = 0;
 
 	while (true) {
 		/*
 		power_drive(master.get_analog(ANALOG_LEFT_X), master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_X));
 
 
-		if (master.get_digital_new_press(DIGITAL_A)) autonomous();
-		*/
+		if (master.get_digital_new_press(DIGITAL_UP)) autonomous();
+		//*/
 		///*
 
 		// Reset Motor Encoder Positions //
@@ -150,18 +138,18 @@ void opcontrol() {
 
 		// Elevator //
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-		// toggle the elevator on or off
-		if (master.get_digital_new_press(DIGITAL_Y)) {
-			if (elevator_state == 1) {
-				elevator_state = 0;
-				Elevator = 0;
-				MotorPriority[INTAKE] = 0;
-			}
-			else {
-				elevator_state = 1;
-				Elevator = 100;
-				MotorPriority[INTAKE] = 1;
-			}
+		// Elevator Master
+		if (master.get_digital(DIGITAL_L1)) {
+			Elevator = 127;
+			MotorPriority[INTAKE] = 2;
+		}
+		else if (master.get_digital(DIGITAL_L2)) {
+			Elevator = -127;
+			MotorPriority[INTAKE] = 2;
+		}
+		else {
+			Elevator = 0;
+			MotorPriority[INTAKE] = 0;
 		}
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
@@ -173,12 +161,12 @@ void opcontrol() {
 		Needle.set_value(needle_state);
 
 		// mogo pneumatics toggle
-		if (master.get_digital_new_press(DIGITAL_L1)) {
+		if (partner.get_digital_new_press(DIGITAL_L1)) {
 			OBar_state = 0;
 			if (mogo_state == 0) {
 				mogo_state = 1;
 			} 
-			else if (OBarAngle() > -20) {
+			else if (OBarAngle() > -60) {
 				mogo_state = 0;
 			}
 			else {
@@ -188,7 +176,7 @@ void opcontrol() {
 
 		// button for OBar loading
 		// only actuate if the arm is at the minimum position
-		if (master.get_digital_new_press(DIGITAL_L2)) {
+		if (partner.get_digital_new_press(DIGITAL_L2)) {
 			if (arm_state == ARM_MIN) {
 				mogo_state = 2;
 			}
@@ -198,15 +186,18 @@ void opcontrol() {
 		}
 
 		// manually trigger the needle intake
-		if (master.get_digital_new_press(DIGITAL_B)) {
+		if (partner.get_digital_new_press(DIGITAL_B)) {
 			needle_state = !needle_state;
 		}
 
 		// toggle between the two unloading state
-		if (master.get_digital_new_press(DIGITAL_UP))
+		if (partner.get_digital_new_press(DIGITAL_UP)) {
 			OBar_state = 2;
+			arm_state = ARM_DOCK_POS;
+			claw_state = true;
+		}
 		
-		if (master.get_digital_new_press(DIGITAL_DOWN)) 
+		if (partner.get_digital_new_press(DIGITAL_DOWN)) 
 			OBar_state = 3;
 
 		// state machine for the OBar system
@@ -218,23 +209,17 @@ void opcontrol() {
 			OBarMoveToPosition(-120);
 			break;
 			case 2 :
-			OBarMoveToPosition(30);
-			OWrist.move_absolute(100, 50);
+			OBarMoveToPosition(-4);
+			OWrist.move_absolute(-10, 50);
 			break;
 			case 3 :
-			OBarMoveToPosition(-30);
+			OBarMoveToPosition(0);
 			break;
 		}
 
 		// state machine for mogo intake system
 		switch (mogo_state) {
 			case 0 :
-			// move the cap out of the way if the OBar is low
-			if (OBarAngle() < -65) {
-				mogo_shifter_state = true;
-			}
-			// otherwise move the mogo to the 0 position
-			else {
 				// power the mogo intake until the mogo_limit is triggered
 				if (MogoLimit.get_value() == 0) {
 					// only close the cap if the mogo is out of the way
@@ -252,7 +237,6 @@ void opcontrol() {
 					mogo_shifter_state = false;
 					MotorPriority[MOGO] = 0;
 				}
-			}
 			MotorPriority[ONE] = 1;
 			break;
 			case 1 :
@@ -308,7 +292,7 @@ void opcontrol() {
 			MotorPriority[ONE] = 1;
 			break;
 			case 4 :
-			OWrist.move_absolute(0, 200);
+			OWrist.move_absolute(-50, 200);
 			MogoLeft.move_absolute(MOGO_MID_POS, 100);
 			MogoRight.move_absolute(MOGO_MID_POS, 100);
 			needle_state = true;
@@ -319,7 +303,11 @@ void opcontrol() {
 			case 5 :
 			needle_state = false;
 			OWrist.move_absolute(200, 50);
-			mogo_state = 0;
+			OBar_state = 0;
+			mogo_shifter_state = true;
+
+			if (OBarAngle() > -60)
+				mogo_state = 0;
 			break;
 		}
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
@@ -327,7 +315,7 @@ void opcontrol() {
 
 		// Claw //
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-		if (master.get_digital_new_press(DIGITAL_X))
+		if (partner.get_digital_new_press(DIGITAL_X))
 			claw_state = !claw_state;
 
 		Claw.set_value(claw_state);
@@ -336,12 +324,12 @@ void opcontrol() {
 
 		// Arm //
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-		if (master.get_digital_new_press(DIGITAL_R1)) {
+		if (partner.get_digital_new_press(DIGITAL_R1)) {
 			if (arm_state == ARM_MIN) arm_state = ARM_HOVER;
 			else if (arm_state == ARM_HOVER || arm_state == ARM_STACK) arm_state = ARM_MAX;
 			else if (arm_state == ARM_MAX) arm_state = ARM_STACK;
 		}
-		else if (master.get_digital_new_press(DIGITAL_R2)) {
+		else if (partner.get_digital_new_press(DIGITAL_R2)) {
 			arm_state = ARM_MIN;
 		}
 
@@ -379,9 +367,14 @@ void opcontrol() {
 			ArmRight.move_absolute(ARM_MAX_POS, 200);
 			MotorPriority[ARM] = 2;
 			break;
+			case ARM_DOCK_POS :
+			ArmLeft.move_absolute(ARM_DOCK_POS, 200);
+			ArmRight.move_absolute(ARM_DOCK_POS, 200);
+			MotorPriority[ARM] = 2;
+			break;
 		}
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 		//*/
-		delay(5);
+		delay(10);
 	}
 }
