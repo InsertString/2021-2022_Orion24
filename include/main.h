@@ -78,11 +78,19 @@ void opcontrol(void);
 //#include <iostream>
 #endif
 
+//MACROS
+#define MOGO_LIFT_POSITION 700
+#define MOGO_ENDSTOP_TRIGGERED 1
+
 //EXTERNS//
 
 extern Controller master;
 extern Imu imu;
 extern ADIEncoder YEncoder;
 extern ADIEncoder XEncoder;
+extern ADIDigitalIn MogoEndstop;
+extern Motor MogoLeft;
+extern Motor MogoRight;
+extern Motor Intake;
 
 #endif  // _PROS_MAIN_H_
