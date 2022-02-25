@@ -7,7 +7,7 @@
 Controller master(E_CONTROLLER_MASTER);
 
 // Sensors
-Imu imu(1);
+Imu imu(11);
 ADIEncoder YEncoder(1, 2, false);
 ADIEncoder XEncoder(3, 4, false);
 
@@ -23,19 +23,20 @@ Odom odom;
 */
 
 void odom_task(void* param) {
+	delay(100);
 	printf("Initializing Odometry...\n");
-	odom.configure(10, 10, 20, 20, 20);
 	odom.configure_starting(Vector2D(0,0), 0);
+	odom.configure(10, 10, 20, 20, 20);
 	printf("waiting for imu to initialize...\n");
 	while (imu.is_calibrating() == true) {}
 	printf("Initialization complete\n");
 
 	while (true) {
-		odom.calculate_position(ODOM_DEBUG_NONE);
+		odom.calculate_position(ODOM_DEBUG_GLOBAL_POSITION);
 	}
 }
 
-Task odom (odom_task, NULL, TASK_PRIORITY_DEFAULT - 1, TASK_STACK_DEPTH_DEFAULT, "ODOM");
+Task task_odom (odom_task, NULL, TASK_PRIORITY_DEFAULT - 1, TASK_STACK_DEPTH_DEFAULT, "ODOM");
 
 void initialize() {
 	imu.reset();

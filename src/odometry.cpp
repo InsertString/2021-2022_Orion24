@@ -27,10 +27,10 @@ void Odom::configure(double x_e_dist, double x_wheel_c, double y_e_dist, double 
   y_encoder_dist = y_e_dist;
   y_wheel_circumfrance = y_wheel_c;
   tracking_delay = delay;
-  velocity = VECTOR_2D_ZERO;
-  acceleration = VECTOR_2D_ZERO;
-  global_position = VECTOR_2D_ZERO;
-  global_offset = VECTOR_2D_ZERO;
+  velocity = Vector2D(0,0);
+  acceleration = Vector2D(0,0);
+  global_position = Vector2D(0,0);
+  global_offset = Vector2D(0,0);
 }
 
 void Odom::configure_starting(Vector2D init_pos, double init_angle) {
@@ -50,7 +50,7 @@ void Odom::collect_data(int debug) {
   // calculate the sensor deltas
   delta_x_encoder = XEncoder.get_value() - past_x_encoder;
   delta_y_encoder = YEncoder.get_value() - past_y_encoder;
-  delta_angle = imu.get_rotation() - past_angle;
+  delta_angle = rad_angle() - past_angle;
 
   // convert encoder values to CM
   delta_x_encoder = delta_x_encoder / 360 * x_wheel_circumfrance;
@@ -58,12 +58,12 @@ void Odom::collect_data(int debug) {
 
   // print stuff for debugging
   if (debug == ODOM_DEBUG_ENCODER_RAW) {
-    printf("\rX Enc = [%4.0f] Y Enc = [%4.0f]", XEncoder.get_value(), YEncoder.get_value());
+    printf("\rX Enc = [%4.0d] Y Enc = [%4.0d]", XEncoder.get_value(), YEncoder.get_value());
     fflush(stdout);
   }
   
   if (debug == ODOM_DEBUG_ENCODER_CM) {
-    printf("\rX Enc = [%3.2f cm] Y Enc = [%3.2f cm]", XEncoder.get_value() / 360 * x_wheel_circumfrance, YEncoder.get_value() / 360 * y_wheel_circumfrance);
+    printf("\rX Enc = [%3.2f cm] Y Enc = [%3.2f cm]", (double(XEncoder.get_value()) / 360.0f * x_wheel_circumfrance), (double(YEncoder.get_value()) / 360.0f * y_wheel_circumfrance));
     fflush(stdout);
   }
 }
@@ -88,7 +88,7 @@ void Odom::calculate_position(int debug) {
   velocity = global_offset * one_over_delay_in_seconds;
 
   if (debug == ODOM_DEBUG_GLOBAL_POSITION) {
-    printf("\rUpdate Time: [%3.0fms] X: [%3.2f] Y: [%3.2f]", tracking_delay, global_position.x, global_position.y);
+    printf("\rUpdate Time: [%3.0fms] X: [%3.2f] Y: [%3.2f] Angle: [%3.2f]", tracking_delay, global_position.x, global_position.y, getAngle());
     fflush(stdout);
   }
 
