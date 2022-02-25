@@ -12,7 +12,6 @@
 class Odom {
 private:
     // angle variables
-    double rad_angle();
     double delta_angle;
     double past_angle;
     // encoder variables
@@ -39,6 +38,7 @@ public:
     Vector2D getVelocity();
     Vector2D getAcceleration();
     double getAngle();
+    double rad_angle();
 
     void configure(double x_e_dist, double x_wheel_c, double y_e_dist, double y_wheel_c, double delay);
     void configure_starting(Vector2D init_pos, double init_angle);

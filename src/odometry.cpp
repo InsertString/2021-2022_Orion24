@@ -31,6 +31,7 @@ void Odom::configure(double x_e_dist, double x_wheel_c, double y_e_dist, double 
   acceleration = Vector2D(0,0);
   global_position = Vector2D(0,0);
   global_offset = Vector2D(0,0);
+  local_offset = Vector2D(0,0);
 }
 
 void Odom::configure_starting(Vector2D init_pos, double init_angle) {
@@ -93,7 +94,7 @@ void Odom::calculate_position(int debug) {
   }
 
   if (debug == ODOM_DEBUG_LOCAL_OFFSET) {
-    printf("\rUpdate Time: [%3.0fms] X: [%3.2f] Y: [%3.2f]", tracking_delay, local_offset.x, local_offset.y);
+    printf("\rUpdate Time: [%3.0fms] X: [%3.2f] Y: [%3.2f] A: [%3.2f]", tracking_delay, local_offset.x, local_offset.y, delta_angle);
     fflush(stdout);
   }
 

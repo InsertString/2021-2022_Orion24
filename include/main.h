@@ -79,8 +79,9 @@ void opcontrol(void);
 #endif
 
 //MACROS
-#define MOGO_LIFT_POSITION 700
+#define MOGO_LIFT_POSITION 750
 #define MOGO_ENDSTOP_TRIGGERED 1
+#define ARM_ENDSTOP_TRIGGERED 1
 
 //EXTERNS//
 
@@ -89,8 +90,22 @@ extern Imu imu;
 extern ADIEncoder YEncoder;
 extern ADIEncoder XEncoder;
 extern ADIDigitalIn MogoEndstop;
+extern ADIDigitalIn ArmEndstop;
+extern ADIDigitalOut Claw;
+extern ADIDigitalOut Needle;
+extern Motor Wrist;
 extern Motor MogoLeft;
 extern Motor MogoRight;
+extern Motor ArmLeft;
+extern Motor ArmRight;
 extern Motor Intake;
+extern Motor DriveLF;
+extern Motor DriveLM;
+extern Motor DriveLB;
+extern Motor DriveRF;
+extern Motor DriveRM;
+extern Motor DriveRB;
+
+extern Odom odom;
 
 #endif  // _PROS_MAIN_H_
