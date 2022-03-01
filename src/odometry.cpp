@@ -29,7 +29,7 @@ void Odom::configure(double x_e_dist, double x_wheel_c, double y_e_dist, double 
   tracking_delay = delay;
   velocity = Vector2D(0,0);
   acceleration = Vector2D(0,0);
-  global_position = Vector2D(0,0);
+  global_position = initial_position;
   global_offset = Vector2D(0,0);
   local_offset = Vector2D(0,0);
 }

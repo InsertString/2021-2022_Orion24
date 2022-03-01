@@ -10,7 +10,7 @@ Controller partner(E_CONTROLLER_PARTNER);
 // Motors
 Motor MogoLeft(10, true);
 Motor MogoRight(9, false);
-Motor Intake(20);
+Motor Intake(20, true);
 Motor ArmLeft(14, false);
 Motor ArmRight(15, true);
 Motor Wrist(17);
@@ -47,6 +47,8 @@ Odom odom;
 void odom_task(void* param) {
 	delay(50);
 	printf("Initializing Odometry...\n");
+	// comp:   
+	// skills: 
 	odom.configure_starting(Vector2D(0,0), 0);
 	odom.configure(8.25, 20, 3.22, 20, 20);
 	printf("waiting for imu to initialize...\n");
@@ -74,14 +76,18 @@ void competition_initialize() {}
 
 
 void autonomous() {
-	while (true) {
-		if (master.get_digital(DIGITAL_DOWN)) break;
-	}
+	comp_auto();
 }
 
 
 void opcontrol() {
 	bool mogo_up = false;
+	bool wrist_loaded = false;
+	bool claw_state = false;
+	bool needle_state = false;
+	bool pulse_intake = false;
+	Timer wrist_timer;
+	Timer ring_timer;
 
 	while (true) {
 		debug_base_systems();
@@ -109,6 +115,29 @@ void opcontrol() {
 			mogo_up = !mogo_up;
 		}
 
+
+		if (partner.get_digital_new_press(DIGITAL_B)) {
+			wrist_loaded = !wrist_loaded;
+			wrist_timer.reset();
+		}
+
+		if (wrist_loaded) {
+			if (wrist_timer.delta_time() < 500) {
+				power_wrist(90);
+			}
+			else {
+				power_wrist(3);
+			}
+		}
+		else {
+			if (wrist_timer.delta_time() < 500) {
+				power_wrist(-90);
+			}
+			else {
+				power_wrist(-3);
+			}
+		}
+
 		if (master.get_digital(DIGITAL_L1)) {
 			power_intake(127);
 		}
@@ -123,32 +152,35 @@ void opcontrol() {
 			reset_arm_position();
 		}
 
-		// if (master.get_digital(DIGITAL_R1)) {
-		// 	power_arm(127);
-		// }
-		// else if (master.get_digital(DIGITAL_R2)) {
-		// 	power_arm(-127);
-		// }
-		// else {
-		// 	power_arm(0);
-		// }
+		if (partner.get_digital(DIGITAL_L2)) {
+			if (ArmEndstop.get_value() == false) {
+				power_arm(-80);
+			}
+			else {
+				power_arm(0);
+			}
+		}
+		else if (partner.get_digital(DIGITAL_RIGHT)) {
+			if (ArmEndstop.get_value() == true) power_arm(80);
+			else move_arm_to_position(90, 100);
+		}
+		else if (partner.get_digital(DIGITAL_L1)) {
+			power_arm(127);
+		}
+		else {
+			power_arm(master.get_analog(ANALOG_RIGHT_Y));
+		}
 
-		//l310 r240
-		power_arm(master.get_analog(ANALOG_RIGHT_Y));
-
-		if (master.get_digital(DIGITAL_UP)) {
-			Claw.set_value(true);
-		}
-		else if (master.get_digital(DIGITAL_DOWN)) {
-			Claw.set_value(false);
+		if (partner.get_digital_new_press(DIGITAL_R1)) {
+			claw_state = !claw_state;
 		}
 
-		if (master.get_digital(DIGITAL_LEFT)) {
-			Needle.set_value(true);
+		if (partner.get_digital_new_press(DIGITAL_R2)) {
+			needle_state = !needle_state;
 		}
-		else if (master.get_digital(DIGITAL_RIGHT)) {
-			Needle.set_value(false);
-		}
+
+		Claw.set_value(claw_state);
+		Needle.set_value(needle_state);
 
 		delay(10);
 	}

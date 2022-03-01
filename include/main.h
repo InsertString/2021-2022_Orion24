@@ -79,7 +79,7 @@ void opcontrol(void);
 #endif
 
 //MACROS
-#define MOGO_LIFT_POSITION 750
+#define MOGO_LIFT_POSITION 775
 #define MOGO_ENDSTOP_TRIGGERED 1
 #define ARM_ENDSTOP_TRIGGERED 1
 

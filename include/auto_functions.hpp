@@ -4,25 +4,23 @@
 #include "Vector2D.hpp"
 #include "PID.hpp"
 
-#define FUNC_SETUP 0
-#define FUNC_BODY 1
-#define FUNC_BODY_2 2
-#define FUNC_BODY_3 3
-#define FUNC_BODY_4 4
-#define FUNC_COMPLETE 5
-
 #define FORWARD 1
 #define BACKWARD -1
 
-#define ARM_WAITING 4
-
 double in_to_cm(double in);
-double imu_heading();
 
-void move_to_point(int &step, int direction, Vector2D target, double accuracy, double max_power, double timeout, PIDVariables y_pid_vars, PIDVariables turn_pid_vars);
-void move_to_point(int &step, int direction, Vector2D target, double max_power, double timeout, PIDVariables y_pid_vars, PIDVariables turn_pid_vars);
+void move_to_point(int direction, Vector2D target, double accuracy, double max_power, double timeout, PIDVariables y_pid_vars, PIDVariables turn_pid_vars);
+void move_to_point(int direction, Vector2D target, double max_power, double timeout, PIDVariables y_pid_vars, PIDVariables turn_pid_vars);
 
-void rotate_to_heading(int &step, double heading, double accuracy, double max_power, double timeout, PIDVariables turn_pid_vars);
-void rotate_to_heading(int &step, double heading, double max_power, double timeout, PIDVariables turn_pid_vars);
+void rotate_to_heading(double heading, double accuracy, double max_power, double timeout, PIDVariables turn_pid_vars);
+void rotate_to_heading(double heading, double max_power, double timeout, PIDVariables turn_pid_vars);
+
+void home_arm();
+void move_arm_auto(bool waiting, double target, double speed, double timeout);
+
+void home_mogo();
+void move_mogo_auto(double target, double speed, double timeout);
+
+void set_wrist_position(bool send_up);
 
 #endif

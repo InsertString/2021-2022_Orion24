@@ -28,6 +28,11 @@ void move_arm_to_position(double target, double speed) {
 }
 
 
+double arm_position() {
+    return (ArmLeft.get_position() + ArmRight.get_position()) / 2;
+}
+
+
 void power_intake(double power) {
     Intake = power;
 }
@@ -51,7 +56,12 @@ void move_mogo_to_position(double target, double speed) {
 }
 
 
-void move_wrist(double power) {
+double mogo_position() {
+    return (MogoLeft.get_position() + MogoRight.get_position()) / 2;
+}
+
+
+void power_wrist(double power) {
     Wrist = power;
 }
 
@@ -68,4 +78,6 @@ void debug_base_systems() {
         screen::print(TEXT_MEDIUM, 4, "ARM ENDSTOP: CLOSED");
     else 
         screen::print(TEXT_MEDIUM, 4, "ARM ENDSTOP: OPEN  ");
+
+    screen::print(TEXT_MEDIUM, 5, "X:[%03.1f] Y:[%03.1f] A:[%03.1f]         ", odom.getPosition().x, odom.getPosition().y, odom.getAngle());
 }
