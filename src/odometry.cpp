@@ -5,7 +5,7 @@ Vector2D Odom::getPosition() {
 }
 
 Vector2D Odom::getVelocity() {
-  return velocity;
+  return velocity; // units of cm/sec
 }
 
 Vector2D Odom::getAcceleration() {
@@ -28,6 +28,7 @@ void Odom::configure(double x_e_dist, double x_wheel_c, double y_e_dist, double 
   y_wheel_circumfrance = y_wheel_c;
   tracking_delay = delay;
   velocity = Vector2D(0,0);
+  past_velocity = Vector2D(0,0);
   acceleration = Vector2D(0,0);
   global_position = initial_position;
   global_offset = Vector2D(0,0);
@@ -44,6 +45,7 @@ void Odom::collect_data(int debug) {
   past_x_encoder = XEncoder.get_value();
   past_y_encoder = YEncoder.get_value();
   past_angle = rad_angle();
+  past_velocity = velocity;
 
   // wait for update
   delay(tracking_delay);
@@ -85,8 +87,11 @@ void Odom::calculate_position(int debug) {
   global_position = global_position + global_offset;
 
   // calculate velocity based on offset
-  double one_over_delay_in_seconds = 1 / (tracking_delay / 1000);
+  double one_over_delay_in_seconds = 1.0 / (tracking_delay / 1000.0);
   velocity = global_offset * one_over_delay_in_seconds;
+
+  acceleration = velocity - past_velocity;
+  acceleration = acceleration * one_over_delay_in_seconds;
 
   if (debug == ODOM_DEBUG_GLOBAL_POSITION) {
     printf("\rUpdate Time: [%3.0fms] X: [%3.2f] Y: [%3.2f] Angle: [%3.2f]", tracking_delay, global_position.x, global_position.y, getAngle());
@@ -94,12 +99,17 @@ void Odom::calculate_position(int debug) {
   }
 
   if (debug == ODOM_DEBUG_LOCAL_OFFSET) {
-    printf("\rUpdate Time: [%3.0fms] X: [%3.2f] Y: [%3.2f] A: [%3.2f]", tracking_delay, local_offset.x, local_offset.y, delta_angle);
+    printf("\rUpdate Time: [%3.0fms] lX: [%3.2f] lY: [%3.2f] A: [%3.2f]", tracking_delay, local_offset.x, local_offset.y, delta_angle);
     fflush(stdout);
   }
 
   if (debug == ODOM_DEBUG_VELOCITY) {
-    printf("\rUpdate Time: [%3.0fms] X: [%3.2f] Y: [%3.2f]", tracking_delay, velocity.x, velocity.y);
+    printf("\rUpdate Time: [%3.0fms] vX: [%3.2f] vY: [%3.2f]", tracking_delay, velocity.x, velocity.y);
+    fflush(stdout);
+  }
+
+  if (debug == ODOM_DEBUG_ACCEL) {
+    printf("\rUpdate Time: [%3.0fms] aX: [%3.2f] aY: [%3.2f]", tracking_delay, acceleration.x, acceleration.y);
     fflush(stdout);
   }
 }

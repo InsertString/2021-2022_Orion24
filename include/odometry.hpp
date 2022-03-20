@@ -1,13 +1,6 @@
 #ifndef _ODOMETRY_HPP_
 #define _ODOMETRY_HPP_
 
-#define ODOM_DEBUG_NONE 0
-#define ODOM_DEBUG_ENCODER_RAW 1
-#define ODOM_DEBUG_ENCODER_CM 2
-#define ODOM_DEBUG_LOCAL_OFFSET 3
-#define ODOM_DEBUG_GLOBAL_POSITION 4
-#define ODOM_DEBUG_VELOCITY 5
-
 // Object for 2wheel Odometry
 class Odom {
 private:
@@ -24,6 +17,7 @@ private:
     Vector2D global_offset;
     Vector2D global_position;
     Vector2D velocity;
+    Vector2D past_velocity;
     Vector2D acceleration;
     // robot parameters
     double y_encoder_dist;
@@ -34,6 +28,13 @@ private:
     double initial_angle;
     double tracking_delay;
 public:
+    #define ODOM_DEBUG_NONE 0
+    #define ODOM_DEBUG_ENCODER_RAW 1
+    #define ODOM_DEBUG_ENCODER_CM 2
+    #define ODOM_DEBUG_LOCAL_OFFSET 3
+    #define ODOM_DEBUG_GLOBAL_POSITION 4
+    #define ODOM_DEBUG_VELOCITY 5
+    #define ODOM_DEBUG_ACCEL 6
     Vector2D getPosition();
     Vector2D getVelocity();
     Vector2D getAcceleration();
