@@ -1,5 +1,11 @@
 #include "main.h"
 
+Odom::Odom(pros::Imu * imu_obj, pros::ADIEncoder * XEncoder_obj, pros::ADIEncoder * YEncoder_obj) {
+  imu = imu_obj;
+  XEncoder = XEncoder_obj;
+  YEncoder = YEncoder_obj;
+}
+
 Vector2D Odom::getPosition() {
   return global_position;
 }
@@ -13,7 +19,7 @@ Vector2D Odom::getAcceleration() {
 }
 
 double Odom::getAngle() {
-  double val = (int)((imu.get_rotation() + initial_angle) * 100);
+  double val = (int)((imu->get_rotation() + initial_angle) * 100);
   return val / 100.0f;
 }
 
@@ -42,8 +48,8 @@ void Odom::configure_starting(Vector2D init_pos, double init_angle) {
 
 void Odom::collect_data(int debug) {
   // store current values before they update
-  past_x_encoder = XEncoder.get_value();
-  past_y_encoder = YEncoder.get_value();
+  past_x_encoder = XEncoder->get_value();
+  past_y_encoder = YEncoder->get_value();
   past_angle = rad_angle();
   past_velocity = velocity;
 
@@ -51,8 +57,8 @@ void Odom::collect_data(int debug) {
   delay(tracking_delay);
 
   // calculate the sensor deltas
-  delta_x_encoder = XEncoder.get_value() - past_x_encoder;
-  delta_y_encoder = YEncoder.get_value() - past_y_encoder;
+  delta_x_encoder = XEncoder->get_value() - past_x_encoder;
+  delta_y_encoder = YEncoder->get_value() - past_y_encoder;
   delta_angle = rad_angle() - past_angle;
 
   // convert encoder values to CM
@@ -61,12 +67,12 @@ void Odom::collect_data(int debug) {
 
   // print stuff for debugging
   if (debug == ODOM_DEBUG_ENCODER_RAW) {
-    printf("\rX Enc = [%4.0d] Y Enc = [%4.0d]", XEncoder.get_value(), YEncoder.get_value());
+    printf("\rX Enc = [%4.0d] Y Enc = [%4.0d]", XEncoder->get_value(), YEncoder->get_value());
     fflush(stdout);
   }
   
   if (debug == ODOM_DEBUG_ENCODER_CM) {
-    printf("\rX Enc = [%3.2f cm] Y Enc = [%3.2f cm]", (double(XEncoder.get_value()) / 360.0f * x_wheel_circumfrance), (double(YEncoder.get_value()) / 360.0f * y_wheel_circumfrance));
+    printf("\rX Enc = [%3.2f cm] Y Enc = [%3.2f cm]", (double(XEncoder->get_value()) / 360.0f * x_wheel_circumfrance), (double(YEncoder->get_value()) / 360.0f * y_wheel_circumfrance));
     fflush(stdout);
   }
 }

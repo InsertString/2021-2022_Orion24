@@ -4,6 +4,10 @@
 // Object for 2wheel Odometry
 class Odom {
 private:
+    // sensors
+    pros::Imu * imu;
+    pros::ADIEncoder * YEncoder;
+    pros::ADIEncoder * XEncoder;
     // angle variables
     double delta_angle;
     double past_angle;
@@ -35,6 +39,9 @@ public:
     #define ODOM_DEBUG_GLOBAL_POSITION 4
     #define ODOM_DEBUG_VELOCITY 5
     #define ODOM_DEBUG_ACCEL 6
+
+    Odom(pros::Imu * imu_obj, pros::ADIEncoder * XEncoder_obj, pros::ADIEncoder * YEncoder_obj);
+
     Vector2D getPosition();
     Vector2D getVelocity();
     Vector2D getAcceleration();

@@ -37,7 +37,6 @@
 #include "api.h"
 #include "base_includes.hpp"
 #include "base_functions.hpp"
-#include "odometry.hpp"
 #include "auto_functions.hpp"
 #include "auto.hpp"
 
@@ -85,9 +84,6 @@ void opcontrol(void);
 
 //EXTERNS//
 
-extern Imu imu;
-extern ADIEncoder YEncoder;
-extern ADIEncoder XEncoder;
 extern Odom odom;
 
 #endif  // _PROS_MAIN_H_

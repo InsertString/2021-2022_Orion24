@@ -3,11 +3,13 @@
 // Object Declarations //
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-// Odom
-Odom odom;
+// Sensor
 Imu imu(5);
 ADIEncoder YEncoder(3, 4, false);
 ADIEncoder XEncoder(1, 2, false);
+
+// Odom
+Odom odom(&imu, &XEncoder, &YEncoder);
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
@@ -29,7 +31,7 @@ void odom_task(void* param) {
 	printf("Initialization complete\n");
 
 	while (true) {
-		odom.calculate_position(ODOM_DEBUG_GLOBAL_POSITION);
+		odom.calculate_position(ODOM_DEBUG_ENCODER_RAW);
 	}
 }
 
@@ -47,7 +49,7 @@ void competition_initialize() {}
 
 
 void autonomous() {
-	comp_auto();
+	
 }
 
 

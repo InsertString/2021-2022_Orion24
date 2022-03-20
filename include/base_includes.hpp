@@ -6,5 +6,7 @@
 #include "PID.hpp"
 #include "Timer.hpp"
 #include "Vector2D.hpp"
+#include "odometry.hpp"
+#include "bezi_curves.hpp"
 
 #endif
