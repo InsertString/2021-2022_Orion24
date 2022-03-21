@@ -11,6 +11,7 @@ private:
     // angle variables
     double delta_angle;
     double past_angle;
+    double angular_velocity;
     // encoder variables
     double delta_y_encoder;
     double past_y_encoder;
@@ -47,6 +48,7 @@ public:
     Vector2D getAcceleration();
     double getAngle();
     double rad_angle();
+    double getAngularVelocity();
 
     void configure(double x_e_dist, double x_wheel_c, double y_e_dist, double y_wheel_c, double delay);
     void configure_starting(Vector2D init_pos, double init_angle);

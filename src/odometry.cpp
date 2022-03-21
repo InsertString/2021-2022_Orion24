@@ -14,6 +14,10 @@ Vector2D Odom::getVelocity() {
   return velocity; // units of cm/sec
 }
 
+double Odom::getAngularVelocity() {
+  return angular_velocity;
+}
+
 Vector2D Odom::getAcceleration() {
   return acceleration;
 }
@@ -95,6 +99,7 @@ void Odom::calculate_position(int debug) {
   // calculate velocity based on offset
   double one_over_delay_in_seconds = 1.0 / (tracking_delay / 1000.0);
   velocity = global_offset * one_over_delay_in_seconds;
+  angular_velocity = delta_angle * one_over_delay_in_seconds;
 
   acceleration = velocity - past_velocity;
   acceleration = acceleration * one_over_delay_in_seconds;
