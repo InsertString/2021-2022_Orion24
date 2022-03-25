@@ -52,6 +52,14 @@ void PID::set_PID_variables(double target_input, double max_value, double min_va
 
 
 
+// sets the value of the target, the max output, the minimum output, and the integral limit
+void PID::set_PID_target(double target) {
+  this->target = target;
+}
+
+
+
+
 // returns the result of the PID calculations
 double PID::output(double current) {
   double out;

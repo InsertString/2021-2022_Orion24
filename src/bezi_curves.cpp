@@ -28,7 +28,7 @@ Vector2D quadratic_bezi_curve::getCurve(double t) {
     resultant = term_1 + term_2 + term_3;
 
     if (debug_state == BEZI_DEBUG_CURVE) {
-        printf("\rT: [%3.0fms] X: [%3.2f] Y: [%3.2f]", t, resultant.x, resultant.y);
+        printf("\rT: [%0.2f] X: [%3.2f] Y: [%3.2f]", t, resultant.x, resultant.y);
         fflush(stdout);
     }
 
@@ -49,7 +49,7 @@ Vector2D quadratic_bezi_curve::getFirstDerivative(double t) {
     resultant = term_1 + term_2;
 
     if (debug_state == BEXI_DEBUG_FIRST_DERIVATIVE) {
-        printf("\rT: [%3.0fms] X: [%3.2f] Y: [%3.2f]", t, resultant.x, resultant.y);
+        printf("\rT: [%0.2f] X: [%3.2f] Y: [%3.2f]", t, resultant.x, resultant.y);
         fflush(stdout);
     }
 
@@ -63,7 +63,7 @@ Vector2D quadratic_bezi_curve::getSecondDerivative(double t) {
     term_1.y = 2 * (P[2].y - (2 * P[1].y) + P[0].y);
 
     if (debug_state == BEZI_DEBUG_SECOND_DERIVATIVE) {
-        printf("\rT: [%3.0fms] X: [%3.2f] Y: [%3.2f]", t, term_1.x, term_1.y);
+        printf("\rT: [%0.2f] X: [%3.2f] Y: [%3.2f]", t, term_1.x, term_1.y);
         fflush(stdout);
     }
 
@@ -71,7 +71,14 @@ Vector2D quadratic_bezi_curve::getSecondDerivative(double t) {
 }
 
 double quadratic_bezi_curve::getVelocity(double t) {
-    return this->getFirstDerivative(t).getLength();
+    double result = this->getFirstDerivative(t).getLength();
+
+    if (debug_state == BEZI_DEBUG_VELOCITY) {
+        printf("\rT: [%0.2f] V: [%3.2f]", t, result);
+        fflush(stdout);
+    }
+
+    return result;
 }
 
 double quadratic_bezi_curve::getAngularVelocity(double t) {
@@ -79,12 +86,19 @@ double quadratic_bezi_curve::getAngularVelocity(double t) {
     double denominator;
     double term_1;
     double term_2;
+    double result;
 
     term_1 = (this->getFirstDerivative(t).x) * (this->getSecondDerivative(t).y);
     term_2 = (this->getFirstDerivative(t).y) * (this->getSecondDerivative(t).x);
     numerator = term_1 - term_2;
     denominator = pow(this->getFirstDerivative(t).x, 2) + pow(this->getFirstDerivative(t).y, 2);
+    result = numerator / denominator;
 
-    return numerator / denominator;
+    if (debug_state == BEZI_DEBUG_ANGULAR_VELOCITY) {
+        printf("\rT: [%0.2f] aV: [%3.2f]", t, result);
+        fflush(stdout);
+    }
+
+    return result;
 }
 

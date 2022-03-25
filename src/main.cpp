@@ -20,6 +20,7 @@ Odom odom(&imu, &XEncoder, &YEncoder);
 */
 
 void odom_task(void* param) {
+	/*
 	delay(50);
 	printf("Initializing Odometry...\n");
 	// comp:   
@@ -33,6 +34,7 @@ void odom_task(void* param) {
 	while (true) {
 		odom.calculate_position(ODOM_DEBUG_ENCODER_RAW);
 	}
+	*/
 }
 
 Task task_odom (odom_task, NULL, TASK_PRIORITY_DEFAULT - 1, TASK_STACK_DEPTH_DEFAULT, "ODOM");
@@ -56,7 +58,5 @@ void autonomous() {
 void opcontrol() {
 
 	while (true) {
-		
-		delay(10);
 	}
 }
