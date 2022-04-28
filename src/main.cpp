@@ -20,13 +20,17 @@ Odom odom(&imu, &XEncoder, &YEncoder);
 */
 
 void odom_task(void* param) {
-	/*
+	//*
 	delay(50);
 	printf("Initializing Odometry...\n");
-	// comp:   
-	// skills: 
+	//* comp:
 	odom.configure_starting(Vector2D(0,0), 0);
 	odom.configure(8.25, 20, 3.22, 20, 20);
+	//*/
+	/* skills: 
+	odom.configure_starting(Vector2D(0,0), 0);
+	odom.configure(8.25, 20, 3.22, 20, 20);
+	//*/
 	printf("waiting for imu to initialize...\n");
 	while (imu.is_calibrating() == true) {}
 	printf("Initialization complete\n");
@@ -34,7 +38,7 @@ void odom_task(void* param) {
 	while (true) {
 		odom.calculate_position(ODOM_DEBUG_ENCODER_RAW);
 	}
-	*/
+	//*/
 }
 
 Task task_odom (odom_task, NULL, TASK_PRIORITY_DEFAULT - 1, TASK_STACK_DEPTH_DEFAULT, "ODOM");
@@ -58,5 +62,6 @@ void autonomous() {
 void opcontrol() {
 
 	while (true) {
+		
 	}
 }
