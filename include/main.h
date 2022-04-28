@@ -7,6 +7,9 @@
 
 #include "api.h"
 #include "ORION/ORION_includes.hpp"
+#include "auto.hpp"
+#include "auto_functions.hpp"
+#include "base_functions.hpp"
 
 // Add robot spesific includes here
 
