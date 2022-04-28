@@ -2,12 +2,12 @@
 #define _PID_HPP_
 
 
-class PIDVariables {
+class PIDConstants {
 public:
   double kp;
   double ki;
   double kd;
-  PIDVariables(double p, double i, double d);
+  PIDConstants(double p, double i, double d);
 };
 
 
@@ -41,15 +41,21 @@ public:
   PID();
 
   // sets PID targets and max motor power values with the
-  void set_PID_variables(double target_input, double max_value, double min_value, double integral_lim);
+  void set_variables(double target_input, double max_value, double min_value, double integral_lim);
+  void set_max_value(double max_value);
+  void set_min_value(double min_value);
+  void set_int_limit(double integral_lim);
+  void set_target(double target);
+  void set_error(double error);
+  void set_past_error(double error);
 
   // sets the values of the PID constants
-  void set_PID_constants(double p, double i, double d);
-  void set_PID_constants(PIDVariables pid_var);
-  void set_PID_target(double target);
+  void set_constants(double p, double i, double d);
+  void set_constants(PIDConstants pid_var);
 
   // returns the output of your PID
   double output(double current);
+  double output();
 };
 
 
