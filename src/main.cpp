@@ -8,59 +8,23 @@ Controller master(E_CONTROLLER_MASTER);
 Motor LeftConveyor(7);
 Motor RightConveyor(8, true);
 
-Motor DriveR1(1);
-Motor DriveR2(2);
-Motor DriveR3(9);
-Motor DriveR4(10);
-Motor DriveL1(11, true);
-Motor DriveL2(12, true);
-Motor DriveL3(18, true);
-Motor DriveL4(20, true);
+Motor DriveR1(1,  false);
+Motor DriveR2(2,  false);
+Motor DriveR3(9,  false);
+Motor DriveR4(10, false);
+Motor DriveL1(11,  true);
+Motor DriveL2(12,  true);
+Motor DriveL3(18,  true);
+Motor DriveL4(20,  true);
 
-ADIDigitalOut Arm_Release(5);
-ADIDigitalOut HighRings(6);
+ADIDigitalOut ArmRelease(6);
+ADIDigitalOut HighRings(5);
 ADIDigitalOut Arm(7);
 ADIDigitalOut Clamp(8);
 
-// Sensor
 Imu imu(5);
-ADIEncoder YEncoder(3, 4, false);
-ADIEncoder XEncoder(1, 2, false);
-
-// Odom
-Odom odom(&imu, &XEncoder, &YEncoder);
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-
-
-/*
- * Odometry Task
- * Tracks the position of the robot
-*/
-
-void odom_task(void* param) {
-	//*
-	delay(50);
-	printf("Initializing Odometry...\n");
-	//* comp:
-	odom.configure_starting(Vector2D(0,0), 0);
-	odom.configure(8.25, 20, 3.22, 20, 20);
-	//*/
-	/* skills: 
-	odom.configure_starting(Vector2D(0,0), 0);
-	odom.configure(8.25, 20, 3.22, 20, 20);
-	//*/
-	printf("waiting for imu to initialize...\n");
-	while (imu.is_calibrating() == true) {}
-	printf("Initialization complete\n");
-
-	while (true) {
-		odom.calculate_position(ODOM_DEBUG_ENCODER_RAW);
-	}
-	//*/
-}
-
-Task task_odom (odom_task, NULL, TASK_PRIORITY_DEFAULT - 1, TASK_STACK_DEPTH_DEFAULT, "ODOM");
 
 void initialize() {
 	imu.reset();
@@ -81,6 +45,8 @@ void autonomous() {
 void opcontrol() {
 	bool arm_state = false;
 	bool clamp_state = false;
+	bool arm_release_state = false;
+	bool high_rings_state = false;
 	double left = 0;
 	double right = 0;
 
@@ -110,7 +76,21 @@ void opcontrol() {
 			Clamp.set_value(clamp_state);
 		}
 
+		// high rings release piston toggle
+		if (master.get_digital_new_press(DIGITAL_A)) {
+			high_rings_state = !high_rings_state;
+			HighRings.set_value(high_rings_state);
+		}
+
+		// stage 2 release piston toggle
+		if (master.get_digital_new_press(DIGITAL_B)) {
+			arm_release_state = !arm_release_state;
+			ArmRelease.set_value(arm_release_state);
+		}
+
 		// conveyor controls
+		// when rotating, forwards motion should be less as it seems to have more influence
+		// on the motion of the mogo
 		if (master.get_digital(DIGITAL_UP)) {
 			LeftConveyor = 127;
 			RightConveyor = 127;
@@ -120,12 +100,12 @@ void opcontrol() {
 			RightConveyor = -127;
 		}
 		else if (master.get_digital(DIGITAL_LEFT)) {
-			LeftConveyor = 127;
+			LeftConveyor = 90;
 			RightConveyor = -127;
 		}
 		else if (master.get_digital(DIGITAL_RIGHT)) {
 			LeftConveyor = -127;
-			RightConveyor = 127;
+			RightConveyor = 90;
 		}
 		else {
 			LeftConveyor = 0;

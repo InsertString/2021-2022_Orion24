@@ -47,22 +47,22 @@ void opcontrol(void);
 //#include <iostream>
 #endif
 
-extern Odom odom;
+extern Motor LeftConveyor;
+extern Motor RightConveyor;
+extern Motor DriveR1;
+extern Motor DriveR2;
+extern Motor DriveR3;
+extern Motor DriveR4;
+extern Motor DriveL1;
+extern Motor DriveL2;
+extern Motor DriveL3;
+extern Motor DriveL4;
 
-extern Motor LeftConveyor(7);
-extern Motor RightConveyor(8, true);
-extern Motor DriveR1(1);
-extern Motor DriveR2(2);
-extern Motor DriveR3(9);
-extern Motor DriveR4(10);
-extern Motor DriveL1(11, true);
-extern Motor DriveL2(12, true);
-extern Motor DriveL3(18, true);
-extern Motor DriveL4(20, true);
+extern ADIDigitalOut ArmRelease;
+extern ADIDigitalOut HighRings;
+extern ADIDigitalOut Arm;
+extern ADIDigitalOut Clamp;
 
-extern ADIDigitalOut Arm_Release(5);
-extern ADIDigitalOut HighRings(6);
-extern ADIDigitalOut Arm(7);
-extern ADIDigitalOut Clamp(8);
+extern Imu imu;
 
 #endif  // _PROS_MAIN_H_
