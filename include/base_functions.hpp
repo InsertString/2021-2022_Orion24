@@ -14,4 +14,6 @@ double in_to_cm(double in);
 
 void path_to_point(Vector2D target);
 
+void power_conveyor(double left, double right);
+
 #endif

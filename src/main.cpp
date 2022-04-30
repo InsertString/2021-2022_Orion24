@@ -22,7 +22,7 @@ ADIDigitalOut HighRings(5);
 ADIDigitalOut Arm(7);
 ADIDigitalOut Clamp(8);
 
-Imu imu(5);
+Imu imu(6);
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
@@ -38,7 +38,8 @@ void competition_initialize() {}
 
 
 void autonomous() {
-	
+	comp_auto();
+
 }
 
 
@@ -49,11 +50,19 @@ void opcontrol() {
 	bool high_rings_state = false;
 	double left = 0;
 	double right = 0;
+	tare_drive_motors();
 
 	while (true) {
+		screen::print(TEXT_SMALL, 0, "Pos: %f", drive_position());
 		// Tank Drive Controls
-		left = master.get_analog(ANALOG_LEFT_Y);
-		right = master.get_analog(ANALOG_RIGHT_Y);
+		if (master.get_digital(DIGITAL_R2)) {
+			left = -30;
+			right = -30;
+		}
+		else {
+			left = master.get_analog(ANALOG_LEFT_Y);
+			right = master.get_analog(ANALOG_RIGHT_Y);
+		}
 
 		DriveL1 = left;
 		DriveL2 = left;
@@ -92,20 +101,20 @@ void opcontrol() {
 		// when rotating, forwards motion should be less as it seems to have more influence
 		// on the motion of the mogo
 		if (master.get_digital(DIGITAL_UP)) {
-			LeftConveyor = 127;
-			RightConveyor = 127;
+			LeftConveyor =  60;
+			RightConveyor = 60;
 		}
 		else if (master.get_digital(DIGITAL_DOWN)) {
-			LeftConveyor = -127;
+			LeftConveyor =  -127;
 			RightConveyor = -127;
 		}
 		else if (master.get_digital(DIGITAL_LEFT)) {
-			LeftConveyor = 90;
-			RightConveyor = -127;
+			LeftConveyor =   60;
+			RightConveyor = -90;
 		}
 		else if (master.get_digital(DIGITAL_RIGHT)) {
-			LeftConveyor = -127;
-			RightConveyor = 90;
+			LeftConveyor = -90;
+			RightConveyor = 60;
 		}
 		else {
 			LeftConveyor = 0;

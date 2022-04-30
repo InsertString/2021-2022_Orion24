@@ -71,11 +71,16 @@ double drive_position() {
 }
 
 double convert_drive_deg_to_cm(double input) {
-    return input * 1.25 * in_to_cm(4);
+    return (input * 3.1415 / 180) * 1.25 * in_to_cm(4);
 }
 
 double in_to_cm(double in) {
     return in * 2.54;
+}
+
+void power_conveyor(double left, double right) {
+    LeftConveyor = left;
+    RightConveyor = right;
 }
 
 void path_to_point(Vector2D target) {
