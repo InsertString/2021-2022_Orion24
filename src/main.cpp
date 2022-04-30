@@ -39,7 +39,7 @@ void competition_initialize() {}
 
 void autonomous() {
 	comp_auto();
-
+	//comp_auto_2();
 }
 
 
