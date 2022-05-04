@@ -83,6 +83,38 @@ void power_conveyor(double left, double right) {
     RightConveyor = right;
 }
 
+PID stab_PID;
+
+void stabalize(PIDConstants k, double max, double int_limit) {
+    stab_PID.set_constants(k);
+    stab_PID.set_variables(-6, max, -max, int_limit);
+
+    power_drive_directional(-stab_PID.output(imu.get_roll()), 0);
+}
+
+
+void engage_drive_brake() {
+    DriveL1.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+    DriveL2.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+    DriveL3.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+    DriveL4.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+    DriveR1.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+    DriveR2.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+    DriveR3.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+    DriveR4.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+}
+
+void disengage_drive_brake() {
+    DriveL1.set_brake_mode(E_MOTOR_BRAKE_COAST);
+    DriveL2.set_brake_mode(E_MOTOR_BRAKE_COAST);
+    DriveL3.set_brake_mode(E_MOTOR_BRAKE_COAST);
+    DriveL4.set_brake_mode(E_MOTOR_BRAKE_COAST);
+    DriveR1.set_brake_mode(E_MOTOR_BRAKE_COAST);
+    DriveR2.set_brake_mode(E_MOTOR_BRAKE_COAST);
+    DriveR3.set_brake_mode(E_MOTOR_BRAKE_COAST);
+    DriveR4.set_brake_mode(E_MOTOR_BRAKE_COAST);
+}
+
 void path_to_point(Vector2D target) {
     
 }

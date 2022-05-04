@@ -16,4 +16,9 @@ void path_to_point(Vector2D target);
 
 void power_conveyor(double left, double right);
 
+void stabalize(PIDConstants k, double max, double int_limit);
+
+void engage_drive_brake();
+void disengage_drive_brake();
+
 #endif

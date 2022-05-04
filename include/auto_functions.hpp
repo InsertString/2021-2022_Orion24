@@ -20,4 +20,7 @@ void arm_up();
 void store_goal();
 void idle_conv(double power);
 
+void climb_platform_auto();
+void clamp_goal();
+
 #endif

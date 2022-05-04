@@ -27,7 +27,12 @@ Imu imu(6);
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 void initialize() {
+	delay(500);
+	screen::print(TEXT_LARGE, 1, "IMU RESET...");
 	imu.reset();
+	screen::erase();
+	screen::print(TEXT_LARGE, 1, "READY!");
+	disengage_drive_brake();
 }
 
 
@@ -38,40 +43,40 @@ void competition_initialize() {}
 
 
 void autonomous() {
+	tare_drive_motors();
+	imu.tare();
 	comp_auto();
 	//comp_auto_2();
 }
 
 
 void opcontrol() {
+	screen::erase();
 	bool arm_state = false;
 	bool clamp_state = false;
 	bool arm_release_state = false;
 	bool high_rings_state = false;
 	double left = 0;
 	double right = 0;
-	tare_drive_motors();
 
 	while (true) {
-		screen::print(TEXT_SMALL, 0, "Pos: %f", drive_position());
-		// Tank Drive Controls
+		screen::print(TEXT_SMALL, 0, "Drive Position: %f", drive_position());
+		screen::print(TEXT_SMALL, 1, "Yaw: [%3.1f] Pitch: [%3.1f] Roll: [%3.1f]", imu.get_rotation(), imu.get_pitch(), imu.get_roll());
+		
+		// Drive Controls
+		// moving backward slowly to grab rings
 		if (master.get_digital(DIGITAL_R2)) {
-			left = -30;
-			right = -30;
+			power_drive_directional(-20,0);
+		}
+		// auto climb
+		else if (master.get_digital(DIGITAL_X)) {
+			stabalize(PIDConstants(5,0,20), 60, 2);
 		}
 		else {
 			left = master.get_analog(ANALOG_LEFT_Y);
 			right = master.get_analog(ANALOG_RIGHT_Y);
+			power_drive_differential(left, right);
 		}
-
-		DriveL1 = left;
-		DriveL2 = left;
-		DriveL3 = left;
-		DriveL4 = left;
-		DriveR1 = right;
-		DriveR2 = right;
-		DriveR3 = right;
-		DriveR4 = right;
 
 		// arm piston toggle
 		if (master.get_digital_new_press(DIGITAL_L1)) {
@@ -110,10 +115,10 @@ void opcontrol() {
 		}
 		else if (master.get_digital(DIGITAL_LEFT)) {
 			LeftConveyor =   60;
-			RightConveyor = -90;
+			RightConveyor = -127;
 		}
 		else if (master.get_digital(DIGITAL_RIGHT)) {
-			LeftConveyor = -90;
+			LeftConveyor = -127;
 			RightConveyor = 60;
 		}
 		else {

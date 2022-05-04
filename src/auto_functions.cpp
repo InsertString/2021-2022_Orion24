@@ -161,6 +161,10 @@ void deploy_stage_1() {
     Clamp.set_value(false);
 }
 
+void clamp_goal() {
+    Clamp.set_value(false);
+}
+
 void arm_down() {
     Arm.set_value(true);
 }
